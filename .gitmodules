@@ -1,0 +1,3 @@
+[submodule "submodules/llm_orchestrator"]
+	path = submodules/llm_orchestrator
+	url = ../../llm_orchestrator

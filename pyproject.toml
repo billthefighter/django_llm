@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "django-llm"
+version = "0.1.0"
+description = "A django package that enables connection to LLMs and storage of artifacts and responses"
+authors = ["Lucas Whipple <lucas.whipple@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "django_llm", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^5.0"
+llm-orchestrator = {path = "submodules/llm_orchestrator"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
