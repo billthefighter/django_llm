@@ -1,0 +1,11 @@
+select = ["E", "F", "B", "I", "N", "UP", "DJ"]
+ignore = []
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+target-version = "py38"
+
+[mccabe]
+max-complexity = 10 
