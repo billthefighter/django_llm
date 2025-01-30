@@ -2,6 +2,8 @@
 
 Django LLM is a Django application that provides seamless integration between Django projects and LLM (Large Language Model) applications. It offers robust storage, tracking, and management of LLM interactions within your Django application.
 
+Built on top of [LLM Orchestrator](https://github.com/billthefighter/llm_orchestrator), a powerful system for managing large-scale LLM tasks through decomposition and parallel processing.
+
 ## Features
 
 - 🔄 **Chain Execution Tracking**: Track and monitor all LLM chain executions in your Django database
@@ -233,23 +235,53 @@ poetry install
 poetry run pytest
 ```
 
+## Roadmap
+
+### 1. WebSocket Support for Real-time Chain Monitoring (In Progress)
+Our top priority is implementing WebSocket support to provide real-time visibility into LLM chain execution. This will enable:
+- Live monitoring of chain execution steps
+- Real-time feedback for loading/typing indicators
+- Immediate visibility into token usage and costs
+- Better error handling and debugging capabilities
+
+This foundation will support many future features and improvements.
+
+#### Next Steps for WebSocket Implementation:
+1. Set up Django Channels infrastructure
+2. Create WebSocket consumers for chain monitoring
+3. Implement middleware for tracking chain execution
+4. Add client-side handlers for WebSocket events
+5. Create documentation and examples
+
+### Future Priorities
+
+2. **Streaming Responses**
+- Building on WebSocket infrastructure
+- Implementing streaming handlers
+- Adding progress indicators
+- Creating streaming-compatible templates
+
+3. **Rate Limiting and Quota Management**
+- Implementation of rate limiting middleware
+- Usage tracking and quota enforcement
+- Admin interface for quota management
+- Alert system for quota limits
+
+4. **Pre-built UI Components**
+- Common LLM interface patterns
+- React/Vue.js components
+- Customizable templates
+- Mobile-responsive designs
+
+5. **Provider-Specific Examples**
+- Integration guides for popular LLM providers
+- Best practices documentation
+- Performance optimization tips
+- Common use-case examples
+
 ## Contributing
 
-We welcome contributions! Here's how you can help:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add or update tests as needed
-5. Update documentation
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
-
-Please make sure your PR includes:
-- A clear description of the changes
-- Updates to documentation
-- Tests for new functionality
+We welcome contributions to any of these roadmap items! Please check our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started.
 
 ## License
 
@@ -259,4 +291,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Created by Lucas Whipple (lucas.whipple@gmail.com)
 
-Built on top of the [LLM Orchestrator](https://github.com/yourusername/llm_orchestrator) library.
+Built on top of the [LLM Orchestrator](https://github.com/billthefighter/llm_orchestrator) library.
+
+## Similar Projects
+
+While Django LLM aims to be the most comprehensive solution for enterprise-grade LLM applications, there are other excellent projects in this space:
+
+- [LangChain Django](https://github.com/jacobsvante/langchain-django) - Focused on LangChain integration
+- [Django LLM Tools](https://github.com/kreneskyp/django-llm-tools) - Lightweight LLM integration
+- [Django GPT Logger](https://github.com/richardcornish/django-gpt-logger) - OpenAI-specific logging solution
+
+See [what's_the_point.md](what's_the_point.md) for a detailed comparison and when to choose Django LLM.
