@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_llm.apps.DjangoLLMConfig',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -97,4 +98,15 @@ DJANGO_LLM = {
     'STORAGE_BACKEND': 'django_llm.storage.DatabaseStorage',
     'TOKEN_TRACKING': True,
     'COST_TRACKING': True,
+}
+
+ASGI_APPLICATION = 'config.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
 } 

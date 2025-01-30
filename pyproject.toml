@@ -21,6 +21,8 @@ python = "^3.12"
 django = "^5.0"
 llm-orchestrator = {path = "submodules/llm_orchestrator"}
 psycopg2 = "^2.9.10"
+channels = "^4.2.0"
+channels-redis = "^4.2.1"
 
 [tool.poetry.group.test]
 optional = true
