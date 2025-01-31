@@ -109,6 +109,65 @@ class ChainExecution(models.Model):
             models.Index(fields=['started_at']),
         ]
 
+class ChainStepSequence(models.Model):
+    """Represents the sequence/dependency graph of chain steps"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    chain_execution = models.ForeignKey(
+        ChainExecution,
+        on_delete=models.CASCADE,
+        related_name='sequences'
+    )
+    name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['created_at']),
+        ]
+
+class ChainStepDependency(models.Model):
+    """Represents dependencies between chain steps"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sequence = models.ForeignKey(
+        ChainStepSequence,
+        on_delete=models.CASCADE,
+        related_name='dependencies'
+    )
+    from_step = models.ForeignKey(
+        'ChainStep',
+        on_delete=models.CASCADE,
+        related_name='dependent_steps'
+    )
+    to_step = models.ForeignKey(
+        'ChainStep',
+        on_delete=models.CASCADE,
+        related_name='dependency_of'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['sequence', 'from_step', 'to_step']]
+        indexes = [
+            models.Index(fields=['created_at']),
+        ]
+
+class ChainStepTemplate(models.Model):
+    """Represents a reusable template for chain step sequences"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    config = JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['created_at']),
+        ]
+
 class ChainStep(models.Model):
     """Represents a single step within a chain execution"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -117,8 +176,20 @@ class ChainStep(models.Model):
         on_delete=models.CASCADE,
         related_name='steps'
     )
+    sequence = models.ForeignKey(
+        ChainStepSequence,
+        on_delete=models.CASCADE,
+        related_name='steps',
+        null=True
+    )
+    template = models.ForeignKey(
+        ChainStepTemplate,
+        on_delete=models.SET_NULL,
+        related_name='instances',
+        null=True,
+        blank=True
+    )
     step_type = models.CharField(max_length=100)
-    order = models.IntegerField()
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     input_data = JSONField(default=dict)
@@ -126,7 +197,6 @@ class ChainStep(models.Model):
     error_message = models.TextField(null=True, blank=True)
     
     class Meta:
-        ordering = ['order']
         indexes = [
             models.Index(fields=['step_type']),
             models.Index(fields=['started_at']),

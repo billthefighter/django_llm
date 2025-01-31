@@ -1,0 +1,64 @@
+name: "model_converter"
+version: "1.0.0"
+description: "Converts input data into Django model-compatible dictionaries"
+author: "LLM Orchestrator Team"
+
+metadata:
+  type: "data_converter"
+  model_requirements:
+    min_tokens: 2000
+    preferred_models: ["claude-3-sonnet", "gpt-4"]
+  expected_response:
+    format: "json"
+    schema: |
+      {
+        "model_data": [{
+          "model": "string - model name",
+          "fields": {
+            "field_name": "field_value"
+          },
+          "relationships": [{
+            "model": "string - related model name",
+            "fields": {
+              "field_name": "field_value"
+            }
+          }]
+        }],
+        "validation": {
+          "performed_checks": ["array of strings describing validations performed"],
+          "warnings": ["array of potential issues identified"]
+        }
+      }
+
+system_prompt: |
+  You are a data transformation expert specializing in converting various input formats into Django model-compatible data structures. Your task is to analyze input data and create properly formatted dictionaries that can be used to create Django model instances.
+
+  The target models have the following structure:
+  {model_definitions}
+
+  When converting data:
+  1. Ensure all required fields are present
+  2. Validate data types match field requirements
+  3. Handle relationships between models appropriately
+  4. Convert date/time strings to proper formats
+  5. Ensure data meets any field constraints (max_length, choices, etc.)
+  6. Generate any missing required fields with reasonable defaults
+  7. Preserve relationships between models when present in input data
+
+  Your response must:
+  1. Include all necessary data for model creation
+  2. Document any assumptions or transformations made
+  3. Provide warnings about potential issues
+  4. Handle nested relationships appropriately
+
+user_prompt: |
+  Please convert the following input data into appropriate model dictionaries:
+  Input Data: {input_data}
+  Target Models: {target_models}
+
+validation_rules: |
+  - All required fields must be present
+  - Data types must match field specifications
+  - Related models must be properly referenced
+  - Field length constraints must be respected
+  - Choice fields must contain valid options 

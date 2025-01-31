@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.db.models import Sum
-from .models import LLMProvider, ChainExecution, ChainStep, TokenUsageLog, StoredArtifact
+from .models import LLMProvider, ChainExecution, ChainStep, TokenUsageLog, StoredArtifact, ChainStepSequence, ChainStepDependency, ChainStepTemplate
 
 @admin.register(LLMProvider)
 class LLMProviderAdmin(admin.ModelAdmin):
@@ -44,12 +44,83 @@ class ChainExecutionAdmin(admin.ModelAdmin):
         )
     error_status.short_description = 'Error'
 
+@admin.register(ChainStepSequence)
+class ChainStepSequenceAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'chain_link', 'created_at')
+    list_filter = ('created_at', 'name')
+    search_fields = ('name', 'description', 'chain_execution__chain_type')
+    
+    def chain_link(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'../chainexecution/{obj.chain_execution.id}',
+            f'{obj.chain_execution.chain_type} ({obj.chain_execution.id})'
+        )
+    chain_link.short_description = 'Chain'
+
+@admin.register(ChainStepDependency)
+class ChainStepDependencyAdmin(admin.ModelAdmin):
+    list_display = ('id', 'sequence_link', 'from_step_link', 'to_step_link', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('sequence__name', 'from_step__step_type', 'to_step__step_type')
+    
+    def sequence_link(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'../chainstepsequence/{obj.sequence.id}',
+            f'{obj.sequence.name}'
+        )
+    sequence_link.short_description = 'Sequence'
+    
+    def from_step_link(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'../chainstep/{obj.from_step.id}',
+            f'{obj.from_step.step_type}'
+        )
+    from_step_link.short_description = 'From Step'
+    
+    def to_step_link(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'../chainstep/{obj.to_step.id}',
+            f'{obj.to_step.step_type}'
+        )
+    to_step_link.short_description = 'To Step'
+
+@admin.register(ChainStepTemplate)
+class ChainStepTemplateAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created_at', 'updated_at')
+    list_filter = ('created_at', 'updated_at')
+    search_fields = ('name', 'description')
+    readonly_fields = ('created_at', 'updated_at')
+
 @admin.register(ChainStep)
 class ChainStepAdmin(admin.ModelAdmin):
-    list_display = ('id', 'chain_link', 'step_type', 'order', 'duration', 'error_status')
+    list_display = ('id', 'chain_link', 'sequence_link', 'template_link', 'step_type', 'duration', 'error_status')
     list_filter = ('step_type', 'started_at')
     search_fields = ('step_type', 'error_message', 'chain_execution__chain_type')
     readonly_fields = ('started_at', 'completed_at')
+    
+    def sequence_link(self, obj):
+        if obj.sequence:
+            return format_html(
+                '<a href="{}">{}</a>',
+                f'../chainstepsequence/{obj.sequence.id}',
+                f'{obj.sequence.name}'
+            )
+        return "-"
+    sequence_link.short_description = 'Sequence'
+    
+    def template_link(self, obj):
+        if obj.template:
+            return format_html(
+                '<a href="{}">{}</a>',
+                f'../chainsteptemplate/{obj.template.id}',
+                f'{obj.template.name}'
+            )
+        return "-"
+    template_link.short_description = 'Template'
     
     def chain_link(self, obj):
         return format_html(
