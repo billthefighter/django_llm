@@ -1,0 +1,6 @@
+[submodule "submodules/llmaestro"]
+	path = submodules/llmaestro
+	url = https://github.com/billthefighter/LLMaestro
+[submodule "submodules/pydantic2django"]
+	path = submodules/pydantic2django
+	url = https://github.com/billthefighter/pydantic2django
