@@ -5,7 +5,19 @@ description = "A django package that enables connection to LLMs and storage of a
 authors = ["Lucas Whipple <lucas.whipple@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "src"}]
+packages = [{include = "django_llm", from = "src"}]
+homepage = "https://github.com/yourusername/django-llm"
+repository = "https://github.com/yourusername/django-llm"
+keywords = ["django", "llm", "ai", "machine-learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Django",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -19,10 +31,13 @@ filterwarnings = [
 [tool.poetry.dependencies]
 python = "^3.12"
 django = "^5.0"
-llm-orchestrator = {path = "submodules/llm_orchestrator"}
+pydantic2django = {path = "submodules/pydantic2django", develop = true}
+llmaestro = {path = "submodules/llmaestro", develop = true}
 psycopg2 = "^2.9.10"
 channels = "^4.2.0"
 channels-redis = "^4.2.1"
+sqlalchemy = "^2.0.0"
+aiofiles = "^24.1.0"
 
 [tool.poetry.group.test]
 optional = true
@@ -44,24 +59,13 @@ model-bakery = "^1.20.1"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-ruff = "0.6.8 " # https://github.com/astral-sh/ruff
-coverage = "7.6.1 " # https://github.com/nedbat/coveragepy
-djlint = "1.35.2 " # https://github.com/Riverside-Healthcare/djLint
-pre-commit = "3.8.0 " # https://github.com/pre-commit/pre-commit
-django-debug-toolbar = "4.4.6 " # https://github.com/jazzband/django-debug-toolbar
+ruff = "^0.6.8 " # https://github.com/astral-sh/ruff
+coverage = "^7.6.1 " # https://github.com/nedbat/coveragepy
+djlint = "^1.35.2 " # https://github.com/Riverside-Healthcare/djLint
+pre-commit = "^4.1.0"
+django-debug-toolbar = "^4.4.6 " # https://github.com/jazzband/django-debug-toolbar
 detect-secrets = "^1.5.0"
 yamllint = "^1.35.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[project.optional-dependencies]
-test = [
-    "pytest>=7.0",
-    "pytest-django>=4.5",
-    "pytest-asyncio>=0.21.0",
-    "pytest-cov>=4.1",
-    "black>=23.0",
-    "ruff>=0.1.0",
-    "mypy>=1.0",
-]

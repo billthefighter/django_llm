@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_llm.apps.DjangoLLMConfig',
     'channels',
+    'llmaestro',
 ]
 
 MIDDLEWARE = [
@@ -94,11 +95,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django LLM Settings
-DJANGO_LLM = {
-    'STORAGE_BACKEND': 'django_llm.storage.DatabaseStorage',
-    'TOKEN_TRACKING': True,
-    'COST_TRACKING': True,
-}
+DJANGO_LLM_STORAGE_BACKEND = 'django_llm.storage.DatabaseStorage'
+DJANGO_LLM_TOKEN_TRACKING = True
+DJANGO_LLM_COST_TRACKING = True
 
 ASGI_APPLICATION = 'config.asgi.application'
 

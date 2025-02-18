@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.db.models import Sum
 from .models import LLMProvider, ChainExecution, ChainStep, TokenUsageLog, StoredArtifact, ChainStepSequence, ChainStepDependency, ChainStepTemplate
+from .models.llmaestro import DjangoTask, DjangoSubTask, DjangoTokenUsage, DjangoAgentConfig
 
 @admin.register(LLMProvider)
 class LLMProviderAdmin(admin.ModelAdmin):
@@ -187,4 +188,21 @@ class StoredArtifactAdmin(admin.ModelAdmin):
                 f'{obj.step.step_type} ({obj.step.id})'
             )
         return "-"
-    step_link.short_description = 'Step' 
+    step_link.short_description = 'Step'
+
+@admin.register(DjangoTask)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ['task_id', 'type', 'status', 'created_at', 'updated_at']
+    search_fields = ['task_id', 'type']
+    list_filter = ['status', 'type']
+
+@admin.register(DjangoSubTask)
+class SubTaskAdmin(admin.ModelAdmin):
+    list_display = ['subtask_id', 'type', 'status', 'parent_task', 'created_at']
+    list_filter = ['status', 'type']
+    search_fields = ['subtask_id']
+
+@admin.register(DjangoAgentConfig)
+class AgentConfigAdmin(admin.ModelAdmin):
+    list_display = ['name', 'is_active', 'created_at', 'updated_at']
+    list_filter = ['is_active'] 
