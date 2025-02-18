@@ -3,7 +3,7 @@ from django.db import models, transaction
 from django.core.exceptions import ValidationError
 from datetime import datetime
 from .model_inspector import inspect_model
-from llm.interfaces.base import BaseLLMInterface
+from llmaestro.llm.interfaces.base import BaseLLMInterface
 import json
 
 class ModelConversionError(Exception):

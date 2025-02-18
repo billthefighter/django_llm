@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Type, Optional, Tuple
 from django.db import models
 from django.db import transaction
 from ..model_inspector import inspect_model
-from llm.interfaces.base import BaseLLMInterface
+from llmaestro.llm.interfaces.base import BaseLLMInterface
 from django.core.exceptions import ValidationError
 import yaml
 import os
