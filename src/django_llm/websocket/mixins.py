@@ -1,6 +1,6 @@
+
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-import json
+
 
 class WebSocketChainMixin:
     async def _send_update(self, update_type, data):

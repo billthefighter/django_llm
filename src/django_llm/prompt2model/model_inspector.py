@@ -1,6 +1,7 @@
+from typing import Any, Dict, Type
+
 from django.db import models
-from typing import Dict, Any, Type, List
-import inspect
+
 
 def inspect_model(model_class: Type[models.Model]) -> Dict[str, Any]:
     """

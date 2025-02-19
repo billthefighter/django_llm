@@ -1,6 +1,7 @@
 import pytest
-from django.core.exceptions import ValidationError
+
 from src.django_llm.models import LLMProvider
+
 
 @pytest.mark.django_db
 class TestLLMProvider:

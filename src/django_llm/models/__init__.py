@@ -3,18 +3,17 @@ Django-LLM models package with dynamic model discovery.
 """
 from typing import Dict, Type
 
-from django.db import models
-from pydantic import BaseModel
-from django.apps import apps
-
 # Import llmaestro to ensure its models are available
 import llmaestro  # noqa
+from django.apps import apps
+from django.db import models
+from pydantic import BaseModel
 
 from .model_discovery import (
-    setup_dynamic_models,
     get_discovered_models,
     get_django_models,
     get_registry,
+    setup_dynamic_models,
 )
 
 # Initialize registry and discover models early

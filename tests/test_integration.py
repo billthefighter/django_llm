@@ -1,8 +1,8 @@
 import pytest
 from django.urls import reverse
-from .client import LLMTestClient
-from .factories import LLMProviderFactory, ChainExecutionFactory
-from src.django_llm.models import ChainExecution
+
+from .factories import ChainExecutionFactory
+
 
 @pytest.mark.integration
 class TestAdminIntegration:

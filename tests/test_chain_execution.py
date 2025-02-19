@@ -1,7 +1,8 @@
+from datetime import timedelta
+
 import pytest
 from django.utils import timezone
-from datetime import timedelta
-from src.django_llm.models import ChainExecution
+
 
 @pytest.mark.django_db
 class TestChainExecution:

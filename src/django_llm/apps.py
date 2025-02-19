@@ -2,9 +2,8 @@
 Django LLM app configuration.
 """
 import logging
-from django.apps import AppConfig
-from django.db.models import signals
 
+from django.apps import AppConfig
 
 logger = logging.getLogger(__name__)
 
@@ -16,13 +15,11 @@ class DjangoLLMConfig(AppConfig):
     
     def ready(self):
         """
-        Initialize app configuration and discover models.
-        Actual model registration happens during migration operations.
+        Initialize app configuration.
+        Model discovery is deferred until migrations to avoid registration issues.
         """
-        from .models.model_discovery import discover_models
-        
         logger.info("Initializing Django-LLM app...")
         
-        # Just discover models during app initialization
-        # This doesn't create any Django models or access the database
-        discover_models(self.name) 
+        # We no longer call discover_models here
+        # Model discovery will happen during migrations
+        pass 

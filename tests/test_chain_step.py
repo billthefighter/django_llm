@@ -1,7 +1,9 @@
+
 import pytest
 from django.utils import timezone
-from datetime import timedelta
+
 from src.django_llm.models import ChainStep
+
 
 @pytest.mark.django_db
 class TestChainStep:

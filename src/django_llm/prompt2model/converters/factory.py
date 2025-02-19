@@ -1,8 +1,11 @@
 from typing import List, Type
+
 from django.db import models
-from .base import BaseModelConverter, SimpleModelConverter, ComplexModelConverter
-from ..model_inspector import inspect_model
 from llmaestro.llm.interfaces.base import BaseLLMInterface
+
+from ..model_inspector import inspect_model
+from .base import BaseModelConverter, ComplexModelConverter, SimpleModelConverter
+
 
 class ModelConverterFactory:
     """Factory for creating appropriate model converters."""

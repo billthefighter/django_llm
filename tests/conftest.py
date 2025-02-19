@@ -1,6 +1,13 @@
 import pytest
-from django.utils import timezone
-from src.django_llm.models import LLMProvider, ChainExecution, ChainStep, TokenUsageLog, StoredArtifact
+
+from src.django_llm.models import (
+    ChainExecution,
+    ChainStep,
+    LLMProvider,
+    StoredArtifact,
+    TokenUsageLog,
+)
+
 
 @pytest.fixture
 def llm_provider():

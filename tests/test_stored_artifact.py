@@ -1,5 +1,7 @@
 import pytest
+
 from src.django_llm.models import StoredArtifact
+
 
 @pytest.mark.django_db
 class TestStoredArtifact:

@@ -1,7 +1,8 @@
-from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from asgiref.sync import sync_to_async
-from django.core.serializers.json import DjangoJSONEncoder
 import json
+
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 class ChainMonitorConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):

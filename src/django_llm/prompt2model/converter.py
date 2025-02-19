@@ -1,10 +1,11 @@
-from typing import Any, Dict, List, Type, Union
-from django.db import models, transaction
-from django.core.exceptions import ValidationError
-from datetime import datetime
-from .model_inspector import inspect_model
-from llmaestro.llm.interfaces.base import BaseLLMInterface
 import json
+from typing import Any, List, Type
+
+from django.db import models, transaction
+from llmaestro.llm.interfaces.base import BaseLLMInterface
+
+from .model_inspector import inspect_model
+
 
 class ModelConversionError(Exception):
     pass
@@ -73,7 +74,7 @@ async def convert_to_models(
                         m for m in target_models 
                         if m.__name__ == relation['model']
                     )
-                    related_instance = related_model.objects.create(
+                    related_model.objects.create(
                         **relation['fields']
                     )
                     # Add to appropriate relationship

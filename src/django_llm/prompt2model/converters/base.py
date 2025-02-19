@@ -1,13 +1,15 @@
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Type, Optional, Tuple
-from django.db import models
-from django.db import transaction
-from ..model_inspector import inspect_model
-from llmaestro.llm.interfaces.base import BaseLLMInterface
-from django.core.exceptions import ValidationError
-import yaml
-import os
 import json
+import os
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional, Tuple, Type
+
+import yaml
+from django.core.exceptions import ValidationError
+from django.db import models, transaction
+from llmaestro.llm.interfaces.base import BaseLLMInterface
+
+from ..model_inspector import inspect_model
+
 
 class ModelConversionError(Exception):
     pass
@@ -35,7 +37,7 @@ class BaseModelConverter(ABC):
             "prompts", 
             self.prompt_file
         )
-        with open(prompt_path, 'r') as f:
+        with open(prompt_path) as f:
             return yaml.safe_load(f)
     
     def _prepare_system_prompt(

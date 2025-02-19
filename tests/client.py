@@ -1,6 +1,7 @@
 from django.test import Client
 from django.urls import reverse
 
+
 class LLMTestClient:
     def __init__(self):
         self.client = Client()

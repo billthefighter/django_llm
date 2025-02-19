@@ -1,7 +1,8 @@
+
 import redis
-from django.conf import settings
 from channels.layers import get_channel_layer
-import asyncio
+from django.conf import settings
+
 
 class RedisConfigChecker:
     @staticmethod

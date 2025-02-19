@@ -2,8 +2,7 @@
 Django admin configuration for Django-LLM models.
 """
 from django.contrib import admin
-from django.utils.html import format_html
-from django.db.models import Sum
+
 
 # Dynamic model admin class for discovered models
 class DynamicModelAdmin(admin.ModelAdmin):

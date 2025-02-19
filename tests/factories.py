@@ -1,6 +1,14 @@
 import factory
 from factory.django import DjangoModelFactory
-from src.django_llm.models import LLMProvider, ChainExecution, ChainStep, TokenUsageLog, StoredArtifact
+
+from src.django_llm.models import (
+    ChainExecution,
+    ChainStep,
+    LLMProvider,
+    StoredArtifact,
+    TokenUsageLog,
+)
+
 
 class LLMProviderFactory(DjangoModelFactory):
     class Meta:

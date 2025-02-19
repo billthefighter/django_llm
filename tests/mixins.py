@@ -1,5 +1,7 @@
-from django.utils import timezone
 from datetime import timedelta
+
+from django.utils import timezone
+
 
 class ChainTestMixin:
     def create_complete_chain(self, chain_execution, steps=3):

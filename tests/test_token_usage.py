@@ -1,6 +1,7 @@
-import pytest
 from decimal import Decimal
-from src.django_llm.models import TokenUsageLog
+
+import pytest
+
 
 @pytest.mark.django_db
 class TestTokenUsageLog:
