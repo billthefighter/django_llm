@@ -1,7 +1,12 @@
 """
 Django LLM app configuration.
 """
+import logging
 from django.apps import AppConfig
+from django.db.models import signals
+
+
+logger = logging.getLogger(__name__)
 
 
 class DjangoLLMConfig(AppConfig):
@@ -11,10 +16,13 @@ class DjangoLLMConfig(AppConfig):
     
     def ready(self):
         """
-        Register models and admin classes when the app is ready.
-        This ensures models are only registered once and in the correct order.
+        Initialize app configuration and discover models.
+        Actual model registration happens during migration operations.
         """
-        from .models import setup_dynamic_models
+        from .models.model_discovery import discover_models
         
-        # Setup models, including discovery, registration and admin
-        setup_dynamic_models(app_label=self.name) 
+        logger.info("Initializing Django-LLM app...")
+        
+        # Just discover models during app initialization
+        # This doesn't create any Django models or access the database
+        discover_models(self.name) 
