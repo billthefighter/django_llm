@@ -1,6 +1,6 @@
 """
 Generated Django models from Pydantic models.
-Generated at: 2025-03-19 17:17:25
+Generated at: 2025-03-19 19:43:38
 """
 
 
@@ -22,250 +22,36 @@ from pydantic2django.base_django_model import Pydantic2DjangoBaseClass, Pydantic
 from pydantic2django.context_storage import ModelContext, FieldContext
 
 # Additional type imports
-from typing import Callable, Dict, List, Optional
+from typing import AgentMetrics, AgentPool, BasePrompt, Callable, Dict, LLMCapabilities, LLMMetadata, NodeType, Optional, PromptType, ProviderCapabilities, RateLimitConfig, SimplePrompt, Type, TypeVar, VisionCapabilities
 
 # Original Pydantic model imports
 from llmaestro.agents.models import Agent, AgentMetrics, AgentResponse
 from llmaestro.chains.chains import ChainContext, ChainEdge, ChainGraph, ChainMetadata, ChainNode, ChainState, ChainStep, ConditionalNode, DynamicPromptNode, RetryStrategy, ValidationNode
 from llmaestro.chains.conversation_chain import ConversationChain, ConversationChainNode
-from llmaestro.chains.tool_call_chain_example import ToolCallChain
+from llmaestro.chains.tool_call_chain import ToolCallChain
 from llmaestro.core.attachments import FileAttachment, ImageAttachment
 from llmaestro.core.conversations import ConversationContext, ConversationEdge, ConversationGraph, ConversationNode
-from llmaestro.core.graph import BaseEdge, BaseGraph, BaseGraph
+from llmaestro.core.graph import BaseEdge, BaseGraph, BaseNode
 from llmaestro.core.models import BaseResponse, ContextMetrics, LLMResponse, TokenUsage
 from llmaestro.core.orchestrator import ExecutionMetadata
 from llmaestro.core.storage import Artifact
 from llmaestro.llm.credentials import APIKey
 from llmaestro.llm.models import LLMInstance, LLMProfile, LLMRuntimeConfig, LLMState, Provider
 from llmaestro.llm.rate_limiter import TokenBucket
-from llmaestro.prompts.base import PromptVariable, VersionedPrompt
-from llmaestro.prompts.mixins import VersionMixin
-from llmaestro.prompts.types import PromptMetadata, VersionInfo
+from llmaestro.prompts.base import PromptVariable
+from llmaestro.prompts.types import PromptMetadata
 
 # Context class field type imports
 from llmaestro.config.base import RateLimitConfig
+from llmaestro.core.graph import NodeType
 from llmaestro.llm.capabilities import LLMCapabilities, ProviderCapabilities
 from llmaestro.llm.models import LLMMetadata
 from llmaestro.prompts.base import BasePrompt
+import llmaestro
 
 # Type variable for model classes
 T = TypeVar('T')
 # Context classes for models with non-serializable fields
-@dataclass
-class DjangoChainStepContext(ModelContext):
-    """
-    Context class for DjangoChainStep.
-    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
-    """
-    model_name: str = "DjangoChainStep"
-    pydantic_class: Type = ChainStep
-    django_model: Type[models.Model]
-    context_fields: list[FieldContext] = field(default_factory=list)
-
-    def __post_init__(self):
-        """Initialize context fields after instance creation."""
-        self.add_field(
-            field_name="prompt",
-            field_type=BasePrompt,
-            is_optional=False,
-            is_list=False,
-            additional_metadata={}
-        )
-        self.add_field(
-            field_name="input_transform",
-            field_type=Callable,
-            is_optional=True,
-            is_list=False,
-            additional_metadata={}
-        )
-        self.add_field(
-            field_name="output_transform",
-            field_type=Callable,
-            is_optional=True,
-            is_list=False,
-            additional_metadata={}
-        )
-    @classmethod
-    def create(cls,
-        django_model: Type[models.Model],
-        prompt: BasePrompt,
-        input_transform: Optional[Callable],
-        output_transform: Optional[Callable]    ) -> "DjangoChainStepContext":
-        """
-        Create a context instance with the required field values.
-
-        Args:
-            django_model: The Django model class
-            prompt: Value for prompt field
-            input_transform: Value for input_transform field
-            output_transform: Value for output_transform field
-        Returns:
-            A context instance with all required field values set
-        """
-        context = cls(django_model=django_model)
-        context.set_value("prompt", prompt)
-        context.set_value("input_transform", input_transform)
-        context.set_value("output_transform", output_transform)
-        return context
-
-@dataclass
-class DjangoChainGraphContext(ModelContext):
-    """
-    Context class for DjangoChainGraph.
-    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
-    """
-    model_name: str = "DjangoChainGraph"
-    pydantic_class: Type = ChainGraph
-    django_model: Type[models.Model]
-    context_fields: list[FieldContext] = field(default_factory=list)
-
-    def __post_init__(self):
-        """Initialize context fields after instance creation."""
-        self.add_field(
-            field_name="agent_pool",
-            field_type=llmaestro.agents.agent_pool.AgentPool,
-            is_optional=True,
-            is_list=False,
-            additional_metadata={}
-        )
-    @classmethod
-    def create(cls,
-        django_model: Type[models.Model],
-        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]    ) -> "DjangoChainGraphContext":
-        """
-        Create a context instance with the required field values.
-
-        Args:
-            django_model: The Django model class
-            agent_pool: Value for agent_pool field
-        Returns:
-            A context instance with all required field values set
-        """
-        context = cls(django_model=django_model)
-        context.set_value("agent_pool", agent_pool)
-        return context
-
-@dataclass
-class DjangoLLMResponseContext(ModelContext):
-    """
-    Context class for DjangoLLMResponse.
-    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
-    """
-    model_name: str = "DjangoLLMResponse"
-    pydantic_class: Type = LLMResponse
-    django_model: Type[models.Model]
-    context_fields: list[FieldContext] = field(default_factory=list)
-
-    def __post_init__(self):
-        """Initialize context fields after instance creation."""
-        self.add_field(
-            field_name="context_metrics",
-            field_type=llmaestro.core.models.ContextMetrics,
-            is_optional=True,
-            is_list=False,
-            additional_metadata={}
-        )
-    @classmethod
-    def create(cls,
-        django_model: Type[models.Model],
-        context_metrics: Optional[llmaestro.core.models.ContextMetrics]    ) -> "DjangoLLMResponseContext":
-        """
-        Create a context instance with the required field values.
-
-        Args:
-            django_model: The Django model class
-            context_metrics: Value for context_metrics field
-        Returns:
-            A context instance with all required field values set
-        """
-        context = cls(django_model=django_model)
-        context.set_value("context_metrics", context_metrics)
-        return context
-
-@dataclass
-class DjangoProviderContext(ModelContext):
-    """
-    Context class for DjangoProvider.
-    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
-    """
-    model_name: str = "DjangoProvider"
-    pydantic_class: Type = Provider
-    django_model: Type[models.Model]
-    context_fields: list[FieldContext] = field(default_factory=list)
-
-    def __post_init__(self):
-        """Initialize context fields after instance creation."""
-        self.add_field(
-            field_name="capabilities",
-            field_type=ProviderCapabilities,
-            is_optional=False,
-            is_list=False,
-            additional_metadata={}
-        )
-        self.add_field(
-            field_name="rate_limits",
-            field_type=RateLimitConfig,
-            is_optional=False,
-            is_list=False,
-            additional_metadata={}
-        )
-    @classmethod
-    def create(cls,
-        django_model: Type[models.Model],
-        capabilities: ProviderCapabilities,
-        rate_limits: RateLimitConfig    ) -> "DjangoProviderContext":
-        """
-        Create a context instance with the required field values.
-
-        Args:
-            django_model: The Django model class
-            capabilities: Value for capabilities field
-            rate_limits: Value for rate_limits field
-        Returns:
-            A context instance with all required field values set
-        """
-        context = cls(django_model=django_model)
-        context.set_value("capabilities", capabilities)
-        context.set_value("rate_limits", rate_limits)
-        return context
-
-@dataclass
-class DjangoLLMRuntimeConfigContext(ModelContext):
-    """
-    Context class for DjangoLLMRuntimeConfig.
-    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
-    """
-    model_name: str = "DjangoLLMRuntimeConfig"
-    pydantic_class: Type = LLMRuntimeConfig
-    django_model: Type[models.Model]
-    context_fields: list[FieldContext] = field(default_factory=list)
-
-    def __post_init__(self):
-        """Initialize context fields after instance creation."""
-        self.add_field(
-            field_name="rate_limit",
-            field_type=llmaestro.config.base.RateLimitConfig,
-            is_optional=True,
-            is_list=False,
-            additional_metadata={}
-        )
-    @classmethod
-    def create(cls,
-        django_model: Type[models.Model],
-        rate_limit: Optional[llmaestro.config.base.RateLimitConfig]    ) -> "DjangoLLMRuntimeConfigContext":
-        """
-        Create a context instance with the required field values.
-
-        Args:
-            django_model: The Django model class
-            rate_limit: Value for rate_limit field
-        Returns:
-            A context instance with all required field values set
-        """
-        context = cls(django_model=django_model)
-        context.set_value("rate_limit", rate_limit)
-        return context
-
 @dataclass
 class DjangoLLMProfileContext(ModelContext):
     """
@@ -305,7 +91,7 @@ class DjangoLLMProfileContext(ModelContext):
         django_model: Type[models.Model],
         capabilities: LLMCapabilities,
         metadata: LLMMetadata,
-        vision_capabilities: Optional[llmaestro.llm.capabilities.VisionCapabilities]    ) -> "DjangoLLMProfileContext":
+        vision_capabilities: Optional[llmaestro.llm.capabilities.VisionCapabilities]) -> "DjangoLLMProfileContext":
         """
         Create a context instance with the required field values.
 
@@ -321,6 +107,90 @@ class DjangoLLMProfileContext(ModelContext):
         context.set_value("capabilities", capabilities)
         context.set_value("metadata", metadata)
         context.set_value("vision_capabilities", vision_capabilities)
+        return context
+
+@dataclass
+class DjangoProviderContext(ModelContext):
+    """
+    Context class for DjangoProvider.
+    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
+    """
+    model_name: str = "DjangoProvider"
+    pydantic_class: Type = Provider
+    django_model: Type[models.Model]
+    context_fields: list[FieldContext] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize context fields after instance creation."""
+        self.add_field(
+            field_name="capabilities",
+            field_type=ProviderCapabilities,
+            is_optional=False,
+            is_list=False,
+            additional_metadata={}
+        )
+        self.add_field(
+            field_name="rate_limits",
+            field_type=RateLimitConfig,
+            is_optional=False,
+            is_list=False,
+            additional_metadata={}
+        )
+    @classmethod
+    def create(cls,
+        django_model: Type[models.Model],
+        capabilities: ProviderCapabilities,
+        rate_limits: RateLimitConfig) -> "DjangoProviderContext":
+        """
+        Create a context instance with the required field values.
+
+        Args:
+            django_model: The Django model class
+            capabilities: Value for capabilities field
+            rate_limits: Value for rate_limits field
+        Returns:
+            A context instance with all required field values set
+        """
+        context = cls(django_model=django_model)
+        context.set_value("capabilities", capabilities)
+        context.set_value("rate_limits", rate_limits)
+        return context
+
+@dataclass
+class DjangoLLMRuntimeConfigContext(ModelContext):
+    """
+    Context class for DjangoLLMRuntimeConfig.
+    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
+    """
+    model_name: str = "DjangoLLMRuntimeConfig"
+    pydantic_class: Type = LLMRuntimeConfig
+    django_model: Type[models.Model]
+    context_fields: list[FieldContext] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize context fields after instance creation."""
+        self.add_field(
+            field_name="rate_limit",
+            field_type=llmaestro.config.base.RateLimitConfig,
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+    @classmethod
+    def create(cls,
+        django_model: Type[models.Model],
+        rate_limit: Optional[llmaestro.config.base.RateLimitConfig]) -> "DjangoLLMRuntimeConfigContext":
+        """
+        Create a context instance with the required field values.
+
+        Args:
+            django_model: The Django model class
+            rate_limit: Value for rate_limit field
+        Returns:
+            A context instance with all required field values set
+        """
+        context = cls(django_model=django_model)
+        context.set_value("rate_limit", rate_limit)
         return context
 
 @dataclass
@@ -346,7 +216,7 @@ class DjangoTokenBucketContext(ModelContext):
     @classmethod
     def create(cls,
         django_model: Type[models.Model],
-        rate_limit_config: RateLimitConfig    ) -> "DjangoTokenBucketContext":
+        rate_limit_config: RateLimitConfig) -> "DjangoTokenBucketContext":
         """
         Create a context instance with the required field values.
 
@@ -358,6 +228,258 @@ class DjangoTokenBucketContext(ModelContext):
         """
         context = cls(django_model=django_model)
         context.set_value("rate_limit_config", rate_limit_config)
+        return context
+
+@dataclass
+class DjangoBaseEdgeContext(ModelContext):
+    """
+    Context class for DjangoBaseEdge.
+    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
+    """
+    model_name: str = "DjangoBaseEdge"
+    pydantic_class: Type = BaseEdge
+    django_model: Type[models.Model]
+    context_fields: list[FieldContext] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize context fields after instance creation."""
+        self.add_field(
+            field_name="source",
+            field_type=NodeType,
+            is_optional=False,
+            is_list=False,
+            additional_metadata={}
+        )
+        self.add_field(
+            field_name="target",
+            field_type=NodeType,
+            is_optional=False,
+            is_list=False,
+            additional_metadata={}
+        )
+    @classmethod
+    def create(cls,
+        django_model: Type[models.Model],
+        source: NodeType,
+        target: NodeType) -> "DjangoBaseEdgeContext":
+        """
+        Create a context instance with the required field values.
+
+        Args:
+            django_model: The Django model class
+            source: Value for source field
+            target: Value for target field
+        Returns:
+            A context instance with all required field values set
+        """
+        context = cls(django_model=django_model)
+        context.set_value("source", source)
+        context.set_value("target", target)
+        return context
+
+@dataclass
+class DjangoChainStepContext(ModelContext):
+    """
+    Context class for DjangoChainStep.
+    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
+    """
+    model_name: str = "DjangoChainStep"
+    pydantic_class: Type = ChainStep
+    django_model: Type[models.Model]
+    context_fields: list[FieldContext] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize context fields after instance creation."""
+        self.add_field(
+            field_name="prompt",
+            field_type=BasePrompt,
+            is_optional=False,
+            is_list=False,
+            additional_metadata={}
+        )
+        self.add_field(
+            field_name="input_transform",
+            field_type=Callable,
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+        self.add_field(
+            field_name="output_transform",
+            field_type=Callable,
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+    @classmethod
+    def create(cls,
+        django_model: Type[models.Model],
+        prompt: BasePrompt,
+        input_transform: Optional[Callable],
+        output_transform: Optional[Callable]) -> "DjangoChainStepContext":
+        """
+        Create a context instance with the required field values.
+
+        Args:
+            django_model: The Django model class
+            prompt: Value for prompt field
+            input_transform: Value for input_transform field
+            output_transform: Value for output_transform field
+        Returns:
+            A context instance with all required field values set
+        """
+        context = cls(django_model=django_model)
+        context.set_value("prompt", prompt)
+        context.set_value("input_transform", input_transform)
+        context.set_value("output_transform", output_transform)
+        return context
+
+@dataclass
+class DjangoBaseGraphContext(ModelContext):
+    """
+    Context class for DjangoBaseGraph.
+    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
+    """
+    model_name: str = "DjangoBaseGraph"
+    pydantic_class: Type = BaseGraph
+    django_model: Type[models.Model]
+    context_fields: list[FieldContext] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize context fields after instance creation."""
+        self.add_field(
+            field_name="prompt_type",
+            field_type=Type[PromptType],
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+    @classmethod
+    def create(cls,
+        django_model: Type[models.Model],
+        prompt_type: Optional[Type[PromptType]]) -> "DjangoBaseGraphContext":
+        """
+        Create a context instance with the required field values.
+
+        Args:
+            django_model: The Django model class
+            prompt_type: Value for prompt_type field
+        Returns:
+            A context instance with all required field values set
+        """
+        context = cls(django_model=django_model)
+        context.set_value("prompt_type", prompt_type)
+        return context
+
+@dataclass
+class DjangoBaseGraphContext(ModelContext):
+    """
+    Context class for DjangoBaseGraph.
+    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
+    """
+    model_name: str = "DjangoBaseGraph"
+    pydantic_class: Type = BaseGraph
+    django_model: Type[models.Model]
+    context_fields: list[FieldContext] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize context fields after instance creation."""
+        self.add_field(
+            field_name="prompt_type",
+            field_type=Type[BasePrompt],
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+    @classmethod
+    def create(cls,
+        django_model: Type[models.Model],
+        prompt_type: Optional[Type[BasePrompt]]) -> "DjangoBaseGraphContext":
+        """
+        Create a context instance with the required field values.
+
+        Args:
+            django_model: The Django model class
+            prompt_type: Value for prompt_type field
+        Returns:
+            A context instance with all required field values set
+        """
+        context = cls(django_model=django_model)
+        context.set_value("prompt_type", prompt_type)
+        return context
+
+@dataclass
+class DjangoBaseGraphContext(ModelContext):
+    """
+    Context class for DjangoBaseGraph.
+    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
+    """
+    model_name: str = "DjangoBaseGraph"
+    pydantic_class: Type = BaseGraph
+    django_model: Type[models.Model]
+    context_fields: list[FieldContext] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize context fields after instance creation."""
+        self.add_field(
+            field_name="prompt_type",
+            field_type=Type[SimplePrompt],
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+    @classmethod
+    def create(cls,
+        django_model: Type[models.Model],
+        prompt_type: Optional[Type[SimplePrompt]]) -> "DjangoBaseGraphContext":
+        """
+        Create a context instance with the required field values.
+
+        Args:
+            django_model: The Django model class
+            prompt_type: Value for prompt_type field
+        Returns:
+            A context instance with all required field values set
+        """
+        context = cls(django_model=django_model)
+        context.set_value("prompt_type", prompt_type)
+        return context
+
+@dataclass
+class DjangoConversationGraphContext(ModelContext):
+    """
+    Context class for DjangoConversationGraph.
+    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
+    """
+    model_name: str = "DjangoConversationGraph"
+    pydantic_class: Type = ConversationGraph
+    django_model: Type[models.Model]
+    context_fields: list[FieldContext] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize context fields after instance creation."""
+        self.add_field(
+            field_name="prompt_type",
+            field_type=Type[SimplePrompt],
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+    @classmethod
+    def create(cls,
+        django_model: Type[models.Model],
+        prompt_type: Optional[Type[SimplePrompt]]) -> "DjangoConversationGraphContext":
+        """
+        Create a context instance with the required field values.
+
+        Args:
+            django_model: The Django model class
+            prompt_type: Value for prompt_type field
+        Returns:
+            A context instance with all required field values set
+        """
+        context = cls(django_model=django_model)
+        context.set_value("prompt_type", prompt_type)
         return context
 
 @dataclass
@@ -391,7 +513,7 @@ class DjangoAgentContext(ModelContext):
     def create(cls,
         django_model: Type[models.Model],
         capabilities: LLMCapabilities,
-        metrics: Optional[llmaestro.agents.models.AgentMetrics]    ) -> "DjangoAgentContext":
+        metrics: Optional[llmaestro.agents.models.AgentMetrics]) -> "DjangoAgentContext":
         """
         Create a context instance with the required field values.
 
@@ -408,60 +530,50 @@ class DjangoAgentContext(ModelContext):
         return context
 
 @dataclass
-class DjangoVersionedPromptContext(ModelContext):
+class DjangoChainGraphContext(ModelContext):
     """
-    Context class for DjangoVersionedPrompt.
+    Context class for DjangoChainGraph.
     Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
     """
-    model_name: str = "DjangoVersionedPrompt"
-    pydantic_class: Type = VersionedPrompt
+    model_name: str = "DjangoChainGraph"
+    pydantic_class: Type = ChainGraph
     django_model: Type[models.Model]
     context_fields: list[FieldContext] = field(default_factory=list)
 
     def __post_init__(self):
         """Initialize context fields after instance creation."""
         self.add_field(
-            field_name="attachments",
-            field_type=List,
-            is_optional=False,
-            is_list=False,
-            additional_metadata={}
-        )
-        self.add_field(
-            field_name="expected_response",
-            field_type=llmaestro.llm.responses.ResponseFormat,
+            field_name="prompt_type",
+            field_type=Type[BasePrompt],
             is_optional=True,
             is_list=False,
             additional_metadata={}
         )
         self.add_field(
-            field_name="tools",
-            field_type=List,
-            is_optional=False,
+            field_name="agent_pool",
+            field_type=llmaestro.agents.agent_pool.AgentPool,
+            is_optional=True,
             is_list=False,
             additional_metadata={}
         )
     @classmethod
     def create(cls,
         django_model: Type[models.Model],
-        attachments: List,
-        expected_response: Optional[llmaestro.llm.responses.ResponseFormat],
-        tools: List    ) -> "DjangoVersionedPromptContext":
+        prompt_type: Optional[Type[BasePrompt]],
+        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]) -> "DjangoChainGraphContext":
         """
         Create a context instance with the required field values.
 
         Args:
             django_model: The Django model class
-            attachments: Value for attachments field
-            expected_response: Value for expected_response field
-            tools: Value for tools field
+            prompt_type: Value for prompt_type field
+            agent_pool: Value for agent_pool field
         Returns:
             A context instance with all required field values set
         """
         context = cls(django_model=django_model)
-        context.set_value("attachments", attachments)
-        context.set_value("expected_response", expected_response)
-        context.set_value("tools", tools)
+        context.set_value("prompt_type", prompt_type)
+        context.set_value("agent_pool", agent_pool)
         return context
 
 @dataclass
@@ -478,6 +590,13 @@ class DjangoConversationChainContext(ModelContext):
     def __post_init__(self):
         """Initialize context fields after instance creation."""
         self.add_field(
+            field_name="prompt_type",
+            field_type=Type[BasePrompt],
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+        self.add_field(
             field_name="agent_pool",
             field_type=llmaestro.agents.agent_pool.AgentPool,
             is_optional=True,
@@ -487,17 +606,20 @@ class DjangoConversationChainContext(ModelContext):
     @classmethod
     def create(cls,
         django_model: Type[models.Model],
-        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]    ) -> "DjangoConversationChainContext":
+        prompt_type: Optional[Type[BasePrompt]],
+        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]) -> "DjangoConversationChainContext":
         """
         Create a context instance with the required field values.
 
         Args:
             django_model: The Django model class
+            prompt_type: Value for prompt_type field
             agent_pool: Value for agent_pool field
         Returns:
             A context instance with all required field values set
         """
         context = cls(django_model=django_model)
+        context.set_value("prompt_type", prompt_type)
         context.set_value("agent_pool", agent_pool)
         return context
 
@@ -516,7 +638,7 @@ class DjangoConversationChainNodeContext(ModelContext):
         """Initialize context fields after instance creation."""
         self.add_field(
             field_name="prompt",
-            field_type=llmaestro.prompts.base.BasePrompt,
+            field_type=llmaestro.prompts.implementations.SimplePrompt,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -524,7 +646,7 @@ class DjangoConversationChainNodeContext(ModelContext):
     @classmethod
     def create(cls,
         django_model: Type[models.Model],
-        prompt: Optional[llmaestro.prompts.base.BasePrompt]    ) -> "DjangoConversationChainNodeContext":
+        prompt: Optional[llmaestro.prompts.implementations.SimplePrompt]) -> "DjangoConversationChainNodeContext":
         """
         Create a context instance with the required field values.
 
@@ -552,6 +674,13 @@ class DjangoToolCallChainContext(ModelContext):
     def __post_init__(self):
         """Initialize context fields after instance creation."""
         self.add_field(
+            field_name="prompt_type",
+            field_type=Type[BasePrompt],
+            is_optional=True,
+            is_list=False,
+            additional_metadata={}
+        )
+        self.add_field(
             field_name="agent_pool",
             field_type=llmaestro.agents.agent_pool.AgentPool,
             is_optional=True,
@@ -561,399 +690,25 @@ class DjangoToolCallChainContext(ModelContext):
     @classmethod
     def create(cls,
         django_model: Type[models.Model],
-        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]    ) -> "DjangoToolCallChainContext":
+        prompt_type: Optional[Type[BasePrompt]],
+        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]) -> "DjangoToolCallChainContext":
         """
         Create a context instance with the required field values.
 
         Args:
             django_model: The Django model class
+            prompt_type: Value for prompt_type field
             agent_pool: Value for agent_pool field
         Returns:
             A context instance with all required field values set
         """
         context = cls(django_model=django_model)
+        context.set_value("prompt_type", prompt_type)
         context.set_value("agent_pool", agent_pool)
         return context
 
 
 # Generated Django models
-"""
-Django model for RetryStrategy.
-"""
-
-class DjangoRetryStrategy(Pydantic2DjangoBaseClass[RetryStrategy]):
-    """
-    Django model for RetryStrategy.
-    """
-
-    max_retries = models.IntegerField(verbose_name='max retries', default=3)
-    delay = models.FloatField(verbose_name='delay', default=1.0)
-    exponential_backoff = models.BooleanField(verbose_name='exponential backoff', default=False)
-    max_delay = models.FloatField(verbose_name='max delay', null=True, blank=True)
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_retrystrategy"
-        app_label = "django_llm"
-        verbose_name = """RetryStrategy"""
-        verbose_name_plural = """RetryStrategys"""
-        abstract = False
-
-
-"""
-Django model for ChainStep.
-"""
-
-class DjangoChainStep(Pydantic2DjangoBaseClass[ChainStep]):
-    """
-    Django model for ChainStep.
-
-    Context Fields:
-        The following fields require context when converting back to Pydantic:
-        - prompt: BasePrompt
-        - input_transform: Optional[Any]
-        - output_transform: Optional[LLMResponse]
-    """
-
-    retry_strategy = models.ForeignKey(verbose_name='retry strategy', to='django_llm.RetryStrategy', on_delete=models.CASCADE)
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_chainstep"
-        app_label = "django_llm"
-        verbose_name = """ChainStep"""
-        verbose_name_plural = """ChainSteps"""
-        abstract = False
-
-    def to_pydantic(self, context: "DjangoChainStepContext") -> ChainStep:
-        """
-        Convert this Django model to The corresponding ChainStep object.
-        """
-        return cast(ChainStep, super().to_pydantic(context=context))
-
-"""
-Django model for ChainMetadata.
-"""
-
-class DjangoChainMetadata(Pydantic2DjangoBaseClass[ChainMetadata]):
-    """
-    Django model for ChainMetadata.
-    """
-
-    description = models.TextField(verbose_name='description', null=True, blank=True)
-    tags = models.JSONField(verbose_name='tags')
-    version = models.TextField(verbose_name='version', null=True, blank=True)
-    custom_data = models.JSONField(verbose_name='custom data')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_chainmetadata"
-        app_label = "django_llm"
-        verbose_name = """ChainMetadata"""
-        verbose_name_plural = """ChainMetadatas"""
-        abstract = False
-
-
-"""
-Django model for ChainNode.
-"""
-
-class DjangoChainNode(Pydantic2DjangoBaseClass[ChainNode]):
-    """
-    Django model for ChainNode.
-    """
-
-    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.ChainMetadata', on_delete=models.CASCADE)
-    step = models.ForeignKey(verbose_name='step', to='django_llm.ChainStep', on_delete=models.CASCADE)
-    node_type = models.CharField(verbose_name='node type', choices=[('sequential', 'SEQUENTIAL'), ('parallel', 'PARALLEL'), ('conditional', 'CONDITIONAL'), ('agent', 'AGENT'), ('validation', 'VALIDATION')], max_length=11)
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_chainnode"
-        app_label = "django_llm"
-        verbose_name = """ChainNode"""
-        verbose_name_plural = """ChainNodes"""
-        abstract = False
-
-
-"""
-Django model for ChainEdge.
-"""
-
-class DjangoChainEdge(Pydantic2DjangoBaseClass[ChainEdge]):
-    """
-    Django model for ChainEdge.
-    """
-
-    source_id = models.TextField(verbose_name='source id', help_text='ID of the source node')
-    target_id = models.TextField(verbose_name='target id', help_text='ID of the target node')
-    edge_type = models.TextField(verbose_name='edge type', help_text='Type of relationship')
-    metadata = models.JSONField(verbose_name='metadata')
-    condition = models.TextField(verbose_name='condition', help_text='Optional condition for edge traversal', null=True, blank=True)
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_chainedge"
-        app_label = "django_llm"
-        verbose_name = """ChainEdge"""
-        verbose_name_plural = """ChainEdges"""
-        abstract = False
-
-
-"""
-Django model for ChainState.
-"""
-
-class DjangoChainState(Pydantic2DjangoBaseClass[ChainState]):
-    """
-    Django model for ChainState.
-    """
-
-    status = models.TextField(verbose_name='status', default='pending')
-    current_step = models.TextField(verbose_name='current step', null=True, blank=True)
-    completed_steps = models.JSONField(verbose_name='completed steps')
-    failed_steps = models.JSONField(verbose_name='failed steps')
-    step_results = models.JSONField(verbose_name='step results')
-    variables = models.JSONField(verbose_name='variables')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_chainstate"
-        app_label = "django_llm"
-        verbose_name = """ChainState"""
-        verbose_name_plural = """ChainStates"""
-        abstract = False
-
-
-"""
-Django model for ChainContext.
-"""
-
-class DjangoChainContext(Pydantic2DjangoBaseClass[ChainContext]):
-    """
-    Django model for ChainContext.
-    """
-
-    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.ChainMetadata', on_delete=models.CASCADE)
-    state = models.ForeignKey(verbose_name='state', to='django_llm.ChainState', on_delete=models.CASCADE)
-    variables = models.JSONField(verbose_name='variables')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_chaincontext"
-        app_label = "django_llm"
-        verbose_name = """ChainContext"""
-        verbose_name_plural = """ChainContexts"""
-        abstract = False
-
-
-"""
-Django model for ChainGraph.
-"""
-
-class DjangoChainGraph(Pydantic2DjangoBaseClass[ChainGraph]):
-    """
-    Django model for ChainGraph.
-
-    Context Fields:
-        The following fields require context when converting back to Pydantic:
-        - agent_pool: Optional[AgentPool]
-    """
-
-    metadata = models.JSONField(verbose_name='metadata')
-    context = models.ForeignKey(verbose_name='context', to='django_llm.ChainContext', on_delete=models.CASCADE)
-    verify_acyclic = models.BooleanField(verbose_name='verify acyclic', help_text='Whether to verify the graph is acyclic during initialization', default=True)
-    nodes = models.ManyToManyField(verbose_name='nodes', to='django_llm.ChainNode')
-    edges = models.ManyToManyField(verbose_name='edges', to='django_llm.ChainEdge')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_chaingraph"
-        app_label = "django_llm"
-        verbose_name = """ChainGraph"""
-        verbose_name_plural = """ChainGraphs"""
-        abstract = False
-
-    def to_pydantic(self, context: "DjangoChainGraphContext") -> ChainGraph:
-        """
-        Convert this Django model to The corresponding ChainGraph object.
-        """
-        return cast(ChainGraph, super().to_pydantic(context=context))
-
-"""
-Django model for ConversationEdge.
-"""
-
-class DjangoConversationEdge(Pydantic2DjangoBaseClass[ConversationEdge]):
-    """
-    Django model for ConversationEdge.
-    """
-
-    source_id = models.TextField(verbose_name='source id', help_text='ID of the source node')
-    target_id = models.TextField(verbose_name='target id', help_text='ID of the target node')
-    edge_type = models.TextField(verbose_name='edge type', help_text='Type of relationship')
-    metadata = models.JSONField(verbose_name='metadata')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_conversationedge"
-        app_label = "django_llm"
-        verbose_name = """ConversationEdge"""
-        verbose_name_plural = """ConversationEdges"""
-        abstract = False
-
-
-"""
-Django model for ConversationNode.
-"""
-
-class DjangoConversationNode(Pydantic2DjangoBaseClass[ConversationNode]):
-    """
-    Django model for ConversationNode.
-    """
-
-    metadata = models.JSONField(verbose_name='metadata')
-    content = models.JSONField(verbose_name='content', help_text='The prompt or response content')
-    node_type = models.TextField(verbose_name='node type', help_text='Type of node (prompt/response)')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_conversationnode"
-        app_label = "django_llm"
-        verbose_name = """ConversationNode"""
-        verbose_name_plural = """ConversationNodes"""
-        abstract = False
-
-
-"""
-Django model for ConversationGraph.
-"""
-
-class DjangoConversationGraph(Pydantic2DjangoBaseClass[ConversationGraph]):
-    """
-    Django model for ConversationGraph.
-    """
-
-    metadata = models.JSONField(verbose_name='metadata')
-    nodes = models.ManyToManyField(verbose_name='nodes', to='django_llm.ConversationNode')
-    edges = models.ManyToManyField(verbose_name='edges', to='django_llm.ConversationEdge')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_conversationgraph"
-        app_label = "django_llm"
-        verbose_name = """ConversationGraph"""
-        verbose_name_plural = """ConversationGraphs"""
-        abstract = False
-
-
-"""
-Django model for BaseEdge.
-"""
-
-class DjangoBaseEdge(Pydantic2DjangoBaseClass[BaseEdge]):
-    """
-    Django model for BaseEdge.
-    """
-
-    source_id = models.TextField(verbose_name='source id', help_text='ID of the source node')
-    target_id = models.TextField(verbose_name='target id', help_text='ID of the target node')
-    edge_type = models.TextField(verbose_name='edge type', help_text='Type of relationship')
-    metadata = models.JSONField(verbose_name='metadata')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_baseedge"
-        app_label = "django_llm"
-        verbose_name = """BaseEdge"""
-        verbose_name_plural = """BaseEdges"""
-        abstract = False
-
-
-"""
-Django model for BaseGraph.
-"""
-
-class DjangoBaseGraph(Pydantic2DjangoBaseClass[BaseGraph]):
-    """
-    Django model for BaseGraph.
-    """
-
-    nodes = models.JSONField(verbose_name='nodes')
-    edges = models.JSONField(verbose_name='edges')
-    metadata = models.JSONField(verbose_name='metadata')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_basegraph"
-        app_label = "django_llm"
-        verbose_name = """BaseGraph"""
-        verbose_name_plural = """BaseGraphs"""
-        abstract = False
-
-
-"""
-Django model for BaseNode.
-"""
-
-class DjangoBaseNode(Pydantic2DjangoBaseClass[BaseNode]):
-    """
-    Django model for BaseNode.
-    """
-
-    metadata = models.JSONField(verbose_name='metadata')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_basenode"
-        app_label = "django_llm"
-        verbose_name = """BaseNode"""
-        verbose_name_plural = """BaseNodes"""
-        abstract = False
-
-
-"""
-Django model for TokenUsage.
-"""
-
-class DjangoTokenUsage(Pydantic2DjangoBaseClass[TokenUsage]):
-    """
-    Django model for TokenUsage.
-    """
-
-    prompt_tokens = models.IntegerField(verbose_name='prompt tokens')
-    completion_tokens = models.IntegerField(verbose_name='completion tokens')
-    total_tokens = models.IntegerField(verbose_name='total tokens')
-    estimated_cost = models.FloatField(verbose_name='estimated cost', null=True, blank=True)
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_tokenusage"
-        app_label = "django_llm"
-        verbose_name = """TokenUsage"""
-        verbose_name_plural = """TokenUsages"""
-        abstract = False
-
-
-"""
-Django model for LLMResponse.
-"""
-
-class DjangoLLMResponse(Pydantic2DjangoBaseClass[LLMResponse]):
-    """
-    Django model for LLMResponse.
-
-    Context Fields:
-        The following fields require context when converting back to Pydantic:
-        - context_metrics: Optional[ContextMetrics]
-    """
-
-    timestamp = models.DateTimeField(verbose_name='timestamp')
-    success = models.BooleanField(verbose_name='success', help_text='Whether the operation was successful')
-    error = models.TextField(verbose_name='error', help_text='Error message if operation failed', null=True, blank=True)
-    execution_time = models.FloatField(verbose_name='execution time', help_text='Time taken to generate response in seconds', null=True, blank=True)
-    metadata = models.JSONField(verbose_name='metadata', help_text='Additional metadata about the response')
-    content = models.TextField(verbose_name='content', help_text='The content of the response')
-    token_usage = models.ForeignKey(verbose_name='token usage', help_text='Token usage statistics', to='django_llm.TokenUsage', on_delete=models.CASCADE)
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_llmresponse"
-        app_label = "django_llm"
-        verbose_name = """LLMResponse"""
-        verbose_name_plural = """LLMResponses"""
-        abstract = False
-
-    def to_pydantic(self, context: "DjangoLLMResponseContext") -> LLMResponse:
-        """
-        Convert this Django model to The corresponding LLMResponse object.
-        """
-        return cast(LLMResponse, super().to_pydantic(context=context))
-
 """
 Django model for BaseResponse.
 """
@@ -1000,6 +755,54 @@ class DjangoContextMetrics(Pydantic2DjangoBaseClass[ContextMetrics]):
 
 
 """
+Django model for TokenUsage.
+"""
+
+class DjangoTokenUsage(Pydantic2DjangoBaseClass[TokenUsage]):
+    """
+    Django model for TokenUsage.
+    """
+
+    prompt_tokens = models.IntegerField(verbose_name='prompt tokens')
+    completion_tokens = models.IntegerField(verbose_name='completion tokens')
+    total_tokens = models.IntegerField(verbose_name='total tokens')
+    estimated_cost = models.FloatField(verbose_name='estimated cost', null=True, blank=True)
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_tokenusage"
+        app_label = "django_llm"
+        verbose_name = """TokenUsage"""
+        verbose_name_plural = """TokenUsages"""
+        abstract = False
+
+
+"""
+Django model for LLMResponse.
+"""
+
+class DjangoLLMResponse(Pydantic2DjangoBaseClass[LLMResponse]):
+    """
+    Django model for LLMResponse.
+    """
+
+    timestamp = models.DateTimeField(verbose_name='timestamp')
+    success = models.BooleanField(verbose_name='success', help_text='Whether the operation was successful')
+    error = models.TextField(verbose_name='error', help_text='Error message if operation failed', null=True, blank=True)
+    execution_time = models.FloatField(verbose_name='execution time', help_text='Time taken to generate response in seconds', null=True, blank=True)
+    metadata = models.JSONField(verbose_name='metadata', help_text='Additional metadata about the response')
+    content = models.TextField(verbose_name='content', help_text='The content of the response')
+    token_usage = models.ForeignKey(verbose_name='token usage', help_text='Token usage statistics', to='django_llm.DjangoTokenUsage', on_delete=models.CASCADE)
+    context_metrics = models.ForeignKey(verbose_name='context metrics', help_text='Context window metrics', null=True, blank=True, to='django_llm.DjangoContextMetrics', on_delete=models.CASCADE)
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_llmresponse"
+        app_label = "django_llm"
+        verbose_name = """LLMResponse"""
+        verbose_name_plural = """LLMResponses"""
+        abstract = False
+
+
+"""
 Django model for APIKey.
 """
 
@@ -1022,6 +825,37 @@ class DjangoAPIKey(Pydantic2DjangoBaseClass[APIKey]):
         verbose_name_plural = """APIKeys"""
         abstract = False
 
+
+"""
+Django model for LLMProfile.
+"""
+
+class DjangoLLMProfile(Pydantic2DjangoBaseClass[LLMProfile]):
+    """
+    Django model for LLMProfile.
+
+    Context Fields:
+        The following fields require context when converting back to Pydantic:
+        - capabilities: LLMCapabilities
+        - metadata: LLMMetadata
+        - vision_capabilities: Optional[VisionCapabilities]
+    """
+
+    version = models.TextField(verbose_name='version', null=True, blank=True)
+    description = models.TextField(verbose_name='description', null=True, blank=True)
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_llmprofile"
+        app_label = "django_llm"
+        verbose_name = """LLMProfile"""
+        verbose_name_plural = """LLMProfiles"""
+        abstract = False
+
+    def to_pydantic(self, context: "DjangoLLMProfileContext") -> LLMProfile:
+        """
+        Convert this Django model to The corresponding LLMProfile object.
+        """
+        return cast(LLMProfile, super().to_pydantic(context=context))
 
 """
 Django model for Provider.
@@ -1086,37 +920,6 @@ class DjangoLLMRuntimeConfig(Pydantic2DjangoBaseClass[LLMRuntimeConfig]):
         return cast(LLMRuntimeConfig, super().to_pydantic(context=context))
 
 """
-Django model for LLMProfile.
-"""
-
-class DjangoLLMProfile(Pydantic2DjangoBaseClass[LLMProfile]):
-    """
-    Django model for LLMProfile.
-
-    Context Fields:
-        The following fields require context when converting back to Pydantic:
-        - capabilities: LLMCapabilities
-        - metadata: LLMMetadata
-        - vision_capabilities: Optional[VisionCapabilities]
-    """
-
-    version = models.TextField(verbose_name='version', null=True, blank=True)
-    description = models.TextField(verbose_name='description', null=True, blank=True)
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_llmprofile"
-        app_label = "django_llm"
-        verbose_name = """LLMProfile"""
-        verbose_name_plural = """LLMProfiles"""
-        abstract = False
-
-    def to_pydantic(self, context: "DjangoLLMProfileContext") -> LLMProfile:
-        """
-        Convert this Django model to The corresponding LLMProfile object.
-        """
-        return cast(LLMProfile, super().to_pydantic(context=context))
-
-"""
 Django model for LLMState.
 """
 
@@ -1125,9 +928,9 @@ class DjangoLLMState(Pydantic2DjangoBaseClass[LLMState]):
     Django model for LLMState.
     """
 
-    profile = models.ForeignKey(verbose_name='profile', help_text='Model profile containing capabilities and metadata', to='django_llm.LLMProfile', on_delete=models.CASCADE)
-    provider = models.ForeignKey(verbose_name='provider', help_text='Provider configuration', to='django_llm.Provider', on_delete=models.CASCADE)
-    runtime_config = models.ForeignKey(verbose_name='runtime config', help_text='Runtime configuration', to='django_llm.LLMRuntimeConfig', on_delete=models.CASCADE)
+    profile = models.ForeignKey(verbose_name='profile', help_text='Model profile containing capabilities and metadata', to='django_llm.DjangoLLMProfile', on_delete=models.CASCADE)
+    provider = models.ForeignKey(verbose_name='provider', help_text='Provider configuration', to='django_llm.DjangoProvider', on_delete=models.CASCADE)
+    runtime_config = models.ForeignKey(verbose_name='runtime config', help_text='Runtime configuration', to='django_llm.DjangoLLMRuntimeConfig', on_delete=models.CASCADE)
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
         db_table = "django_llm_llmstate"
@@ -1146,9 +949,9 @@ class DjangoLLMInstance(Pydantic2DjangoBaseClass[LLMInstance]):
     Django model for LLMInstance.
     """
 
-    state = models.ForeignKey(verbose_name='state', help_text='Configuration and metadata for the LLM', to='django_llm.LLMState', on_delete=models.CASCADE)
+    state = models.ForeignKey(verbose_name='state', help_text='Configuration and metadata for the LLM', to='django_llm.DjangoLLMState', on_delete=models.CASCADE)
     interface = models.JSONField(verbose_name='interface', help_text='Active interface instance for LLM interactions')
-    credentials = models.ForeignKey(verbose_name='credentials', help_text='API credentials for this instance', null=True, blank=True, to='django_llm.APIKey', on_delete=models.CASCADE)
+    credentials = models.ForeignKey(verbose_name='credentials', help_text='API credentials for this instance', null=True, blank=True, to='django_llm.DjangoAPIKey', on_delete=models.CASCADE)
     is_initialized = models.BooleanField(verbose_name='is initialized', help_text='Whether this instance has been fully initialized', default=False)
     is_healthy = models.BooleanField(verbose_name='is healthy', help_text='Whether this instance is currently healthy and operational', default=True)
     last_error = models.TextField(verbose_name='last error', help_text='Last error encountered by this instance', null=True, blank=True)
@@ -1190,6 +993,201 @@ class DjangoTokenBucket(Pydantic2DjangoBaseClass[TokenBucket]):
         Convert this Django model to The corresponding TokenBucket object.
         """
         return cast(TokenBucket, super().to_pydantic(context=context))
+
+"""
+Django model for BaseEdge.
+"""
+
+class DjangoBaseEdge(Pydantic2DjangoBaseClass[BaseEdge]):
+    """
+    Django model for BaseEdge.
+
+    Context Fields:
+        The following fields require context when converting back to Pydantic:
+        - source: NodeType
+        - target: NodeType
+    """
+
+    edge_type = models.TextField(verbose_name='edge type', help_text='Type of relationship')
+    metadata = models.JSONField(verbose_name='metadata')
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_baseedge"
+        app_label = "django_llm"
+        verbose_name = """BaseEdge"""
+        verbose_name_plural = """BaseEdges"""
+        abstract = False
+
+    def to_pydantic(self, context: "DjangoBaseEdgeContext") -> BaseEdge:
+        """
+        Convert this Django model to The corresponding BaseEdge object.
+        """
+        return cast(BaseEdge, super().to_pydantic(context=context))
+
+"""
+Django model for ChainMetadata.
+"""
+
+class DjangoChainMetadata(Pydantic2DjangoBaseClass[ChainMetadata]):
+    """
+    Django model for ChainMetadata.
+    """
+
+    description = models.TextField(verbose_name='description', null=True, blank=True)
+    tags = models.JSONField(verbose_name='tags')
+    version = models.TextField(verbose_name='version', null=True, blank=True)
+    custom_data = models.JSONField(verbose_name='custom data')
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_chainmetadata"
+        app_label = "django_llm"
+        verbose_name = """ChainMetadata"""
+        verbose_name_plural = """ChainMetadatas"""
+        abstract = False
+
+
+"""
+Django model for RetryStrategy.
+"""
+
+class DjangoRetryStrategy(Pydantic2DjangoBaseClass[RetryStrategy]):
+    """
+    Django model for RetryStrategy.
+    """
+
+    max_retries = models.IntegerField(verbose_name='max retries', default=3)
+    delay = models.FloatField(verbose_name='delay', default=1.0)
+    exponential_backoff = models.BooleanField(verbose_name='exponential backoff', default=False)
+    max_delay = models.FloatField(verbose_name='max delay', null=True, blank=True)
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_retrystrategy"
+        app_label = "django_llm"
+        verbose_name = """RetryStrategy"""
+        verbose_name_plural = """RetryStrategys"""
+        abstract = False
+
+
+"""
+Django model for ChainStep.
+"""
+
+class DjangoChainStep(Pydantic2DjangoBaseClass[ChainStep]):
+    """
+    Django model for ChainStep.
+
+    Context Fields:
+        The following fields require context when converting back to Pydantic:
+        - prompt: BasePrompt
+        - input_transform: Optional[Any]
+        - output_transform: Optional[LLMResponse]
+    """
+
+    retry_strategy = models.ForeignKey(verbose_name='retry strategy', to='django_llm.DjangoRetryStrategy', on_delete=models.CASCADE)
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_chainstep"
+        app_label = "django_llm"
+        verbose_name = """ChainStep"""
+        verbose_name_plural = """ChainSteps"""
+        abstract = False
+
+    def to_pydantic(self, context: "DjangoChainStepContext") -> ChainStep:
+        """
+        Convert this Django model to The corresponding ChainStep object.
+        """
+        return cast(ChainStep, super().to_pydantic(context=context))
+
+"""
+Django model for ChainNode.
+"""
+
+class DjangoChainNode(Pydantic2DjangoBaseClass[ChainNode]):
+    """
+    Django model for ChainNode.
+    """
+
+    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.DjangoChainMetadata', on_delete=models.CASCADE)
+    step = models.ForeignKey(verbose_name='step', to='django_llm.DjangoChainStep', on_delete=models.CASCADE)
+    node_type = models.CharField(verbose_name='node type', choices=[('sequential', 'SEQUENTIAL'), ('parallel', 'PARALLEL'), ('conditional', 'CONDITIONAL'), ('agent', 'AGENT'), ('validation', 'VALIDATION')], max_length=11)
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_chainnode"
+        app_label = "django_llm"
+        verbose_name = """ChainNode"""
+        verbose_name_plural = """ChainNodes"""
+        abstract = False
+
+
+"""
+Django model for ConversationNode.
+"""
+
+class DjangoConversationNode(Pydantic2DjangoBaseClass[ConversationNode]):
+    """
+    Django model for ConversationNode.
+    """
+
+    metadata = models.JSONField(verbose_name='metadata')
+    content = models.JSONField(verbose_name='content', help_text='The prompt or response content')
+    node_type = models.CharField(verbose_name='node type', help_text='Type of node (prompt/response)', choices=[('prompt', 'PROMPT'), ('response', 'RESPONSE')], max_length=8)
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_conversationnode"
+        app_label = "django_llm"
+        verbose_name = """ConversationNode"""
+        verbose_name_plural = """ConversationNodes"""
+        abstract = False
+
+
+"""
+Django model for BaseGraph.
+"""
+
+class DjangoBaseGraph(Pydantic2DjangoBaseClass[BaseGraph]):
+    """
+    Django model for BaseGraph.
+
+    Context Fields:
+        The following fields require context when converting back to Pydantic:
+        - prompt_type: Optional[Type[~PromptType]
+    """
+
+    nodes = models.JSONField(verbose_name='nodes')
+    edges = models.JSONField(verbose_name='edges')
+    metadata = models.JSONField(verbose_name='metadata')
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_basegraph"
+        app_label = "django_llm"
+        verbose_name = """BaseGraph"""
+        verbose_name_plural = """BaseGraphs"""
+        abstract = False
+
+    def to_pydantic(self, context: "DjangoBaseGraphContext") -> BaseGraph:
+        """
+        Convert this Django model to The corresponding BaseGraph object.
+        """
+        return cast(BaseGraph, super().to_pydantic(context=context))
+
+"""
+Django model for BaseNode.
+"""
+
+class DjangoBaseNode(Pydantic2DjangoBaseClass[BaseNode]):
+    """
+    Django model for BaseNode.
+    """
+
+    metadata = models.JSONField(verbose_name='metadata')
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_basenode"
+        app_label = "django_llm"
+        verbose_name = """BaseNode"""
+        verbose_name_plural = """BaseNodes"""
+        abstract = False
+
 
 """
 Django model for FileAttachment.
@@ -1235,6 +1233,36 @@ class DjangoImageAttachment(Pydantic2DjangoBaseClass[ImageAttachment]):
         verbose_name_plural = """ImageAttachments"""
         abstract = False
 
+
+"""
+Django model for ConversationGraph.
+"""
+
+class DjangoConversationGraph(Pydantic2DjangoBaseClass[ConversationGraph]):
+    """
+    Django model for ConversationGraph.
+
+    Context Fields:
+        The following fields require context when converting back to Pydantic:
+        - prompt_type: Optional[SimplePrompt]
+    """
+
+    edges = models.JSONField(verbose_name='edges')
+    metadata = models.JSONField(verbose_name='metadata')
+    nodes = models.ManyToManyField(verbose_name='nodes', to='django_llm.DjangoConversationNode')
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_conversationgraph"
+        app_label = "django_llm"
+        verbose_name = """ConversationGraph"""
+        verbose_name_plural = """ConversationGraphs"""
+        abstract = False
+
+    def to_pydantic(self, context: "DjangoConversationGraphContext") -> ConversationGraph:
+        """
+        Convert this Django model to The corresponding ConversationGraph object.
+        """
+        return cast(ConversationGraph, super().to_pydantic(context=context))
 
 """
 Django model for ExecutionMetadata.
@@ -1292,8 +1320,8 @@ class DjangoConversationContext(Pydantic2DjangoBaseClass[ConversationContext]):
     Django model for ConversationContext.
     """
 
-    graph = models.ForeignKey(verbose_name='graph', help_text='The underlying conversation graph', to='django_llm.ConversationGraph', on_delete=models.CASCADE)
-    current_message = models.TextField(verbose_name='current message', help_text='ID of the current node being processed', null=True, blank=True)
+    graph = models.ForeignKey(verbose_name='graph', help_text='The underlying conversation graph', to='django_llm.DjangoConversationGraph', on_delete=models.CASCADE)
+    current_message = models.ForeignKey(verbose_name='current message', help_text='Current node being processed', null=True, blank=True, to='django_llm.DjangoConversationNode', on_delete=models.CASCADE)
     max_nodes = models.IntegerField(verbose_name='max nodes', help_text='Maximum number of nodes before auto-pruning. None means no auto-pruning.', null=True, blank=True)
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
@@ -1301,6 +1329,28 @@ class DjangoConversationContext(Pydantic2DjangoBaseClass[ConversationContext]):
         app_label = "django_llm"
         verbose_name = """ConversationContext"""
         verbose_name_plural = """ConversationContexts"""
+        abstract = False
+
+
+"""
+Django model for ConversationEdge.
+"""
+
+class DjangoConversationEdge(Pydantic2DjangoBaseClass[ConversationEdge]):
+    """
+    Django model for ConversationEdge.
+    """
+
+    source = models.ForeignKey(verbose_name='source', help_text='Source node', to='django_llm.DjangoConversationNode', on_delete=models.CASCADE)
+    target = models.ForeignKey(verbose_name='target', help_text='Target node', to='django_llm.DjangoConversationNode', on_delete=models.CASCADE)
+    edge_type = models.TextField(verbose_name='edge type', help_text='Type of relationship')
+    metadata = models.JSONField(verbose_name='metadata')
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_conversationedge"
+        app_label = "django_llm"
+        verbose_name = """ConversationEdge"""
+        verbose_name_plural = """ConversationEdges"""
         abstract = False
 
 
@@ -1346,8 +1396,8 @@ class DjangoAgentMetrics(Pydantic2DjangoBaseClass[AgentMetrics]):
     Django model for AgentMetrics.
     """
 
-    token_usage = models.ForeignKey(verbose_name='token usage', to='django_llm.TokenUsage', on_delete=models.CASCADE)
-    context_metrics = models.ForeignKey(verbose_name='context metrics', to='django_llm.ContextMetrics', on_delete=models.CASCADE)
+    token_usage = models.ForeignKey(verbose_name='token usage', to='django_llm.DjangoTokenUsage', on_delete=models.CASCADE)
+    context_metrics = models.ForeignKey(verbose_name='context metrics', to='django_llm.DjangoContextMetrics', on_delete=models.CASCADE)
     execution_time = models.FloatField(verbose_name='execution time')
     timestamp = models.DateTimeField(verbose_name='timestamp')
 
@@ -1381,50 +1431,6 @@ class DjangoAgentResponse(Pydantic2DjangoBaseClass[AgentResponse]):
         app_label = "django_llm"
         verbose_name = """AgentResponse"""
         verbose_name_plural = """AgentResponses"""
-        abstract = False
-
-
-"""
-Django model for VersionInfo.
-"""
-
-class DjangoVersionInfo(Pydantic2DjangoBaseClass[VersionInfo]):
-    """
-    Django model for VersionInfo.
-    """
-
-    number = models.TextField(verbose_name='number')
-    timestamp = models.DateTimeField(verbose_name='timestamp')
-    author = models.TextField(verbose_name='author')
-    description = models.TextField(verbose_name='description')
-    change_type = models.TextField(verbose_name='change type')
-    git_commit = models.TextField(verbose_name='git commit', null=True, blank=True)
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_versioninfo"
-        app_label = "django_llm"
-        verbose_name = """VersionInfo"""
-        verbose_name_plural = """VersionInfos"""
-        abstract = False
-
-
-"""
-Django model for VersionMixin.
-"""
-
-class DjangoVersionMixin(Pydantic2DjangoBaseClass[VersionMixin]):
-    """
-    Django model for VersionMixin.
-    """
-
-    current_version = models.ForeignKey(verbose_name='current version', to='django_llm.VersionInfo', on_delete=models.CASCADE)
-    version_history = models.ManyToManyField(verbose_name='version history', to='django_llm.VersionInfo')
-
-    class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_versionmixin"
-        app_label = "django_llm"
-        verbose_name = """VersionMixin"""
-        verbose_name_plural = """VersionMixins"""
         abstract = False
 
 
@@ -1473,42 +1479,105 @@ class DjangoPromptVariable(Pydantic2DjangoBaseClass[PromptVariable]):
 
 
 """
-Django model for VersionedPrompt.
+Django model for ChainState.
 """
 
-class DjangoVersionedPrompt(Pydantic2DjangoBaseClass[VersionedPrompt]):
+class DjangoChainState(Pydantic2DjangoBaseClass[ChainState]):
     """
-    Django model for VersionedPrompt.
+    Django model for ChainState.
+    """
+
+    status = models.TextField(verbose_name='status', default='pending')
+    current_step = models.TextField(verbose_name='current step', null=True, blank=True)
+    completed_steps = models.JSONField(verbose_name='completed steps')
+    failed_steps = models.JSONField(verbose_name='failed steps')
+    step_results = models.JSONField(verbose_name='step results')
+    variables = models.JSONField(verbose_name='variables')
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_chainstate"
+        app_label = "django_llm"
+        verbose_name = """ChainState"""
+        verbose_name_plural = """ChainStates"""
+        abstract = False
+
+
+"""
+Django model for ChainContext.
+"""
+
+class DjangoChainContext(Pydantic2DjangoBaseClass[ChainContext]):
+    """
+    Django model for ChainContext.
+    """
+
+    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.DjangoChainMetadata', on_delete=models.CASCADE)
+    state = models.ForeignKey(verbose_name='state', to='django_llm.DjangoChainState', on_delete=models.CASCADE)
+    variables = models.JSONField(verbose_name='variables')
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_chaincontext"
+        app_label = "django_llm"
+        verbose_name = """ChainContext"""
+        verbose_name_plural = """ChainContexts"""
+        abstract = False
+
+
+"""
+Django model for ChainEdge.
+"""
+
+class DjangoChainEdge(Pydantic2DjangoBaseClass[ChainEdge]):
+    """
+    Django model for ChainEdge.
+    """
+
+    source = models.ForeignKey(verbose_name='source', help_text='Source node', to='django_llm.DjangoChainNode', on_delete=models.CASCADE)
+    target = models.ForeignKey(verbose_name='target', help_text='Target node', to='django_llm.DjangoChainNode', on_delete=models.CASCADE)
+    edge_type = models.TextField(verbose_name='edge type', help_text='Type of relationship')
+    metadata = models.JSONField(verbose_name='metadata')
+    condition = models.TextField(verbose_name='condition', help_text='Optional condition for edge traversal', null=True, blank=True)
+
+    class Meta(Pydantic2DjangoBaseClass.Meta):
+        db_table = "django_llm_chainedge"
+        app_label = "django_llm"
+        verbose_name = """ChainEdge"""
+        verbose_name_plural = """ChainEdges"""
+        abstract = False
+
+
+"""
+Django model for ChainGraph.
+"""
+
+class DjangoChainGraph(Pydantic2DjangoBaseClass[ChainGraph]):
+    """
+    Django model for ChainGraph.
 
     Context Fields:
         The following fields require context when converting back to Pydantic:
-        - attachments: List[BaseAttachment]
-        - expected_response: Optional[ResponseFormat]
-        - tools: List[ToolParams]
+        - prompt_type: Optional[BasePrompt]
+        - agent_pool: Optional[AgentPool]
     """
 
-    current_version = models.ForeignKey(verbose_name='current version', to='django_llm.VersionInfo', on_delete=models.CASCADE)
-    description = models.TextField(verbose_name='description')
-    system_prompt = models.TextField(verbose_name='system prompt', help_text='System prompt template')
-    user_prompt = models.TextField(verbose_name='user prompt', help_text='User prompt template')
-    metadata = models.ForeignKey(verbose_name='metadata', help_text='Optional metadata about the prompt', null=True, blank=True, to='django_llm.PromptMetadata', on_delete=models.CASCADE)
-    examples = models.JSONField(verbose_name='examples', null=True, blank=True)
-    template_schema = models.JSONField(verbose_name='template schema', help_text='Optional schema for template validation', null=True, blank=True)
-    version_history = models.ManyToManyField(verbose_name='version history', to='django_llm.VersionInfo')
-    variables = models.ManyToManyField(verbose_name='variables', help_text='List of variable definitions', to='django_llm.PromptVariable')
+    edges = models.JSONField(verbose_name='edges')
+    metadata = models.JSONField(verbose_name='metadata')
+    context = models.ForeignKey(verbose_name='context', to='django_llm.DjangoChainContext', on_delete=models.CASCADE)
+    verify_acyclic = models.BooleanField(verbose_name='verify acyclic', help_text='Whether to verify the graph is acyclic during initialization', default=True)
+    nodes = models.ManyToManyField(verbose_name='nodes', to='django_llm.DjangoChainNode')
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
-        db_table = "django_llm_versionedprompt"
+        db_table = "django_llm_chaingraph"
         app_label = "django_llm"
-        verbose_name = """VersionedPrompt"""
-        verbose_name_plural = """VersionedPrompts"""
+        verbose_name = """ChainGraph"""
+        verbose_name_plural = """ChainGraphs"""
         abstract = False
 
-    def to_pydantic(self, context: "DjangoVersionedPromptContext") -> VersionedPrompt:
+    def to_pydantic(self, context: "DjangoChainGraphContext") -> ChainGraph:
         """
-        Convert this Django model to The corresponding VersionedPrompt object.
+        Convert this Django model to The corresponding ChainGraph object.
         """
-        return cast(VersionedPrompt, super().to_pydantic(context=context))
+        return cast(ChainGraph, super().to_pydantic(context=context))
 
 """
 Django model for ConditionalNode.
@@ -1519,8 +1588,8 @@ class DjangoConditionalNode(Pydantic2DjangoBaseClass[ConditionalNode]):
     Django model for ConditionalNode.
     """
 
-    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.ChainMetadata', on_delete=models.CASCADE)
-    step = models.ForeignKey(verbose_name='step', to='django_llm.ChainStep', on_delete=models.CASCADE)
+    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.DjangoChainMetadata', on_delete=models.CASCADE)
+    step = models.ForeignKey(verbose_name='step', to='django_llm.DjangoChainStep', on_delete=models.CASCADE)
     node_type = models.CharField(verbose_name='node type', choices=[('sequential', 'SEQUENTIAL'), ('parallel', 'PARALLEL'), ('conditional', 'CONDITIONAL'), ('agent', 'AGENT'), ('validation', 'VALIDATION')], max_length=11)
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
@@ -1540,8 +1609,8 @@ class DjangoDynamicPromptNode(Pydantic2DjangoBaseClass[DynamicPromptNode]):
     Django model for DynamicPromptNode.
     """
 
-    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.ChainMetadata', on_delete=models.CASCADE)
-    step = models.ForeignKey(verbose_name='step', to='django_llm.ChainStep', on_delete=models.CASCADE)
+    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.DjangoChainMetadata', on_delete=models.CASCADE)
+    step = models.ForeignKey(verbose_name='step', to='django_llm.DjangoChainStep', on_delete=models.CASCADE)
     node_type = models.CharField(verbose_name='node type', choices=[('sequential', 'SEQUENTIAL'), ('parallel', 'PARALLEL'), ('conditional', 'CONDITIONAL'), ('agent', 'AGENT'), ('validation', 'VALIDATION')], max_length=11)
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
@@ -1561,8 +1630,8 @@ class DjangoValidationNode(Pydantic2DjangoBaseClass[ValidationNode]):
     Django model for ValidationNode.
     """
 
-    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.ChainMetadata', on_delete=models.CASCADE)
-    step = models.ForeignKey(verbose_name='step', to='django_llm.ChainStep', on_delete=models.CASCADE)
+    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.DjangoChainMetadata', on_delete=models.CASCADE)
+    step = models.ForeignKey(verbose_name='step', to='django_llm.DjangoChainStep', on_delete=models.CASCADE)
     node_type = models.CharField(verbose_name='node type', choices=[('sequential', 'SEQUENTIAL'), ('parallel', 'PARALLEL'), ('conditional', 'CONDITIONAL'), ('agent', 'AGENT'), ('validation', 'VALIDATION')], max_length=11)
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
@@ -1583,14 +1652,15 @@ class DjangoConversationChain(Pydantic2DjangoBaseClass[ConversationChain]):
 
     Context Fields:
         The following fields require context when converting back to Pydantic:
+        - prompt_type: Optional[BasePrompt]
         - agent_pool: Optional[AgentPool]
     """
 
+    edges = models.JSONField(verbose_name='edges')
     metadata = models.JSONField(verbose_name='metadata')
-    context = models.ForeignKey(verbose_name='context', to='django_llm.ChainContext', on_delete=models.CASCADE)
+    context = models.ForeignKey(verbose_name='context', to='django_llm.DjangoChainContext', on_delete=models.CASCADE)
     verify_acyclic = models.BooleanField(verbose_name='verify acyclic', help_text='Whether to verify the graph is acyclic during initialization', default=True)
-    nodes = models.ManyToManyField(verbose_name='nodes', to='django_llm.ChainNode')
-    edges = models.ManyToManyField(verbose_name='edges', to='django_llm.ChainEdge')
+    nodes = models.ManyToManyField(verbose_name='nodes', to='django_llm.DjangoChainNode')
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
         db_table = "django_llm_conversationchain"
@@ -1615,15 +1685,15 @@ class DjangoConversationChainNode(Pydantic2DjangoBaseClass[ConversationChainNode
 
     Context Fields:
         The following fields require context when converting back to Pydantic:
-        - prompt: Optional[BasePrompt]
+        - prompt: Optional[SimplePrompt]
     """
 
-    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.ChainMetadata', on_delete=models.CASCADE)
-    step = models.ForeignKey(verbose_name='step', to='django_llm.ChainStep', on_delete=models.CASCADE)
+    metadata = models.ForeignKey(verbose_name='metadata', to='django_llm.DjangoChainMetadata', on_delete=models.CASCADE)
+    step = models.ForeignKey(verbose_name='step', to='django_llm.DjangoChainStep', on_delete=models.CASCADE)
     node_type = models.CharField(verbose_name='node type', choices=[('sequential', 'SEQUENTIAL'), ('parallel', 'PARALLEL'), ('conditional', 'CONDITIONAL'), ('agent', 'AGENT'), ('validation', 'VALIDATION')], max_length=11)
-    conversation_id = models.TextField(verbose_name='conversation id', null=True, blank=True)
-    prompt_node_id = models.TextField(verbose_name='prompt node id', null=True, blank=True)
-    response_node_id = models.TextField(verbose_name='response node id', null=True, blank=True)
+    conversation = models.ForeignKey(verbose_name='conversation', null=True, blank=True, to='django_llm.DjangoConversationGraph', on_delete=models.CASCADE)
+    prompt_node = models.ForeignKey(verbose_name='prompt node', null=True, blank=True, to='django_llm.DjangoConversationNode', on_delete=models.CASCADE)
+    response_node = models.ForeignKey(verbose_name='response node', null=True, blank=True, to='django_llm.DjangoConversationNode', on_delete=models.CASCADE)
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
         db_table = "django_llm_conversationchainnode"
@@ -1648,14 +1718,15 @@ class DjangoToolCallChain(Pydantic2DjangoBaseClass[ToolCallChain]):
 
     Context Fields:
         The following fields require context when converting back to Pydantic:
+        - prompt_type: Optional[BasePrompt]
         - agent_pool: Optional[AgentPool]
     """
 
+    edges = models.JSONField(verbose_name='edges')
     metadata = models.JSONField(verbose_name='metadata')
-    context = models.ForeignKey(verbose_name='context', to='django_llm.ChainContext', on_delete=models.CASCADE)
+    context = models.ForeignKey(verbose_name='context', to='django_llm.DjangoChainContext', on_delete=models.CASCADE)
     verify_acyclic = models.BooleanField(verbose_name='verify acyclic', help_text='Whether to verify the graph is acyclic during initialization', default=True)
-    nodes = models.ManyToManyField(verbose_name='nodes', to='django_llm.ChainNode')
-    edges = models.ManyToManyField(verbose_name='edges', to='django_llm.ChainEdge')
+    nodes = models.ManyToManyField(verbose_name='nodes', to='django_llm.DjangoChainNode')
 
     class Meta(Pydantic2DjangoBaseClass.Meta):
         db_table = "django_llm_toolcallchain"
@@ -1674,61 +1745,63 @@ class DjangoToolCallChain(Pydantic2DjangoBaseClass[ToolCallChain]):
 
 # List of all generated models
 __all__ = [
-    'DjangoRetryStrategy',
-    'DjangoChainStep',
-    'DjangoChainMetadata',
-    'DjangoChainNode',
-    'DjangoChainEdge',
-    'DjangoChainState',
-    'DjangoChainContext',
-    'DjangoChainGraph',
-    'DjangoConversationEdge',
-    'DjangoConversationNode',
-    'DjangoConversationGraph',
-    'DjangoBaseEdge',
-    'DjangoBaseGraph',
-    'DjangoBaseNode',
-    'DjangoTokenUsage',
-    'DjangoLLMResponse',
     'DjangoBaseResponse',
     'DjangoContextMetrics',
+    'DjangoTokenUsage',
+    'DjangoLLMResponse',
     'DjangoAPIKey',
+    'DjangoLLMProfile',
     'DjangoProvider',
     'DjangoLLMRuntimeConfig',
-    'DjangoLLMProfile',
     'DjangoLLMState',
     'DjangoLLMInstance',
     'DjangoTokenBucket',
+    'DjangoBaseEdge',
+    'DjangoChainMetadata',
+    'DjangoRetryStrategy',
+    'DjangoChainStep',
+    'DjangoChainNode',
+    'DjangoBaseEdge',
+    'DjangoConversationNode',
+    'DjangoBaseEdge',
     'DjangoBaseGraph',
     'DjangoBaseGraph',
+    'DjangoBaseGraph',
+    'DjangoBaseNode',
     'DjangoFileAttachment',
     'DjangoImageAttachment',
+    'DjangoConversationGraph',
     'DjangoExecutionMetadata',
     'DjangoArtifact',
     'DjangoConversationContext',
+    'DjangoConversationEdge',
     'DjangoAgent',
     'DjangoAgentMetrics',
     'DjangoAgentResponse',
-    'DjangoVersionInfo',
-    'DjangoVersionMixin',
     'DjangoPromptMetadata',
     'DjangoPromptVariable',
-    'DjangoVersionedPrompt',
+    'DjangoChainState',
+    'DjangoChainContext',
+    'DjangoChainEdge',
+    'DjangoChainGraph',
     'DjangoConditionalNode',
     'DjangoDynamicPromptNode',
     'DjangoValidationNode',
     'DjangoConversationChain',
     'DjangoConversationChainNode',
     'DjangoToolCallChain',
-    'DjangoChainStepContext',
-    'DjangoChainGraphContext',
-    'DjangoLLMResponseContext',
+    'DjangoLLMProfileContext',
     'DjangoProviderContext',
     'DjangoLLMRuntimeConfigContext',
-    'DjangoLLMProfileContext',
     'DjangoTokenBucketContext',
+    'DjangoBaseEdgeContext',
+    'DjangoChainStepContext',
+    'DjangoBaseGraphContext',
+    'DjangoBaseGraph[ChainNode, ChainEdge, BasePrompt]Context',
+    'DjangoBaseGraph[ConversationNode, ConversationEdge, SimplePrompt]Context',
+    'DjangoConversationGraphContext',
     'DjangoAgentContext',
-    'DjangoVersionedPromptContext',
+    'DjangoChainGraphContext',
     'DjangoConversationChainContext',
     'DjangoConversationChainNodeContext',
     'DjangoToolCallChainContext',
