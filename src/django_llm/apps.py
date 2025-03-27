@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class DjangoLLMConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
+    default_auto_field = 'django.db.models.BigAutoField'  # type: ignore
     name = 'django_llm'
     verbose_name = 'Django LLM'
     

@@ -8,46 +8,81 @@ Generated at: 2025-03-19 19:43:38
 Imports for generated models and context classes.
 """
 # Standard library imports
-import uuid
 import importlib
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast, TypedDict, Generic
+import uuid
 from dataclasses import dataclass, field
+
+# Additional type imports
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Type,
+    TypedDict,
+    TypeVar,
+    Union,
+    cast,
+)
+
+import llmaestro
+# Import llmaestro submodules
+from llmaestro.agents.agent_pool import AgentPool
+from llmaestro.agents.models import Agent, AgentMetrics, AgentResponse
+from llmaestro.chains.chains import (
+    ChainContext,
+    ChainEdge,
+    ChainGraph,
+    ChainMetadata,
+    ChainNode,
+    ChainState,
+    ChainStep,
+    ConditionalNode,
+    DynamicPromptNode,
+    RetryStrategy,
+    ValidationNode,
+)
+from llmaestro.chains.conversation_chain import ConversationChain, ConversationChainNode
+from llmaestro.chains.tool_call_chain import ToolCallChain
+from llmaestro.config.base import RateLimitConfig
+from llmaestro.core.attachments import FileAttachment, ImageAttachment
+from llmaestro.core.conversations import (
+    ConversationContext,
+    ConversationEdge,
+    ConversationGraph,
+    ConversationNode,
+)
+from llmaestro.core.graph import BaseEdge, BaseGraph, BaseNode, NodeType
+from llmaestro.core.models import BaseResponse, ContextMetrics, LLMResponse, TokenUsage
+from llmaestro.core.orchestrator import ExecutionMetadata
+from llmaestro.core.storage import Artifact
+from llmaestro.llm.capabilities import LLMCapabilities, ProviderCapabilities, VisionCapabilities
+from llmaestro.llm.credentials import APIKey
+from llmaestro.llm.models import (
+    LLMInstance,
+    LLMMetadata,
+    LLMProfile,
+    LLMRuntimeConfig,
+    LLMState,
+    Provider,
+)
+from llmaestro.llm.rate_limiter import TokenBucket
+from llmaestro.prompts.base import BasePrompt, PromptVariable
+from llmaestro.prompts.implementations import SimplePrompt
+from llmaestro.prompts.types import PromptMetadata
 
 # Django and Pydantic imports
 from django.db import models
 from pydantic import BaseModel
 
 # Pydantic2Django imports
-from pydantic2django.base_django_model import Pydantic2DjangoBaseClass, Pydantic2DjangoStorePydanticObject
-from pydantic2django.context_storage import ModelContext, FieldContext
-
-# Additional type imports
-from typing import AgentMetrics, AgentPool, BasePrompt, Callable, Dict, LLMCapabilities, LLMMetadata, NodeType, Optional, PromptType, ProviderCapabilities, RateLimitConfig, SimplePrompt, Type, TypeVar, VisionCapabilities
-
-# Original Pydantic model imports
-from llmaestro.agents.models import Agent, AgentMetrics, AgentResponse
-from llmaestro.chains.chains import ChainContext, ChainEdge, ChainGraph, ChainMetadata, ChainNode, ChainState, ChainStep, ConditionalNode, DynamicPromptNode, RetryStrategy, ValidationNode
-from llmaestro.chains.conversation_chain import ConversationChain, ConversationChainNode
-from llmaestro.chains.tool_call_chain import ToolCallChain
-from llmaestro.core.attachments import FileAttachment, ImageAttachment
-from llmaestro.core.conversations import ConversationContext, ConversationEdge, ConversationGraph, ConversationNode
-from llmaestro.core.graph import BaseEdge, BaseGraph, BaseNode
-from llmaestro.core.models import BaseResponse, ContextMetrics, LLMResponse, TokenUsage
-from llmaestro.core.orchestrator import ExecutionMetadata
-from llmaestro.core.storage import Artifact
-from llmaestro.llm.credentials import APIKey
-from llmaestro.llm.models import LLMInstance, LLMProfile, LLMRuntimeConfig, LLMState, Provider
-from llmaestro.llm.rate_limiter import TokenBucket
-from llmaestro.prompts.base import PromptVariable
-from llmaestro.prompts.types import PromptMetadata
-
-# Context class field type imports
-from llmaestro.config.base import RateLimitConfig
-from llmaestro.core.graph import NodeType
-from llmaestro.llm.capabilities import LLMCapabilities, ProviderCapabilities
-from llmaestro.llm.models import LLMMetadata
-from llmaestro.prompts.base import BasePrompt
-import llmaestro
+from pydantic2django.base_django_model import (
+    Pydantic2DjangoBaseClass,
+    Pydantic2DjangoStorePydanticObject,
+)
+from pydantic2django.context_storage import FieldContext, ModelContext
 
 # Type variable for model classes
 T = TypeVar('T')
@@ -81,7 +116,7 @@ class DjangoLLMProfileContext(ModelContext):
         )
         self.add_field(
             field_name="vision_capabilities",
-            field_type=llmaestro.llm.capabilities.VisionCapabilities,
+            field_type=VisionCapabilities,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -91,7 +126,7 @@ class DjangoLLMProfileContext(ModelContext):
         django_model: Type[models.Model],
         capabilities: LLMCapabilities,
         metadata: LLMMetadata,
-        vision_capabilities: Optional[llmaestro.llm.capabilities.VisionCapabilities]) -> "DjangoLLMProfileContext":
+        vision_capabilities: Optional[VisionCapabilities]) -> "DjangoLLMProfileContext":
         """
         Create a context instance with the required field values.
 
@@ -179,7 +214,7 @@ class DjangoLLMRuntimeConfigContext(ModelContext):
     @classmethod
     def create(cls,
         django_model: Type[models.Model],
-        rate_limit: Optional[llmaestro.config.base.RateLimitConfig]) -> "DjangoLLMRuntimeConfigContext":
+        rate_limit: Optional[RateLimitConfig]) -> "DjangoLLMRuntimeConfigContext":
         """
         Create a context instance with the required field values.
 
@@ -349,81 +384,7 @@ class DjangoBaseGraphContext(ModelContext):
         """Initialize context fields after instance creation."""
         self.add_field(
             field_name="prompt_type",
-            field_type=Type[PromptType],
-            is_optional=True,
-            is_list=False,
-            additional_metadata={}
-        )
-    @classmethod
-    def create(cls,
-        django_model: Type[models.Model],
-        prompt_type: Optional[Type[PromptType]]) -> "DjangoBaseGraphContext":
-        """
-        Create a context instance with the required field values.
-
-        Args:
-            django_model: The Django model class
-            prompt_type: Value for prompt_type field
-        Returns:
-            A context instance with all required field values set
-        """
-        context = cls(django_model=django_model)
-        context.set_value("prompt_type", prompt_type)
-        return context
-
-@dataclass
-class DjangoBaseGraphContext(ModelContext):
-    """
-    Context class for DjangoBaseGraph.
-    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
-    """
-    model_name: str = "DjangoBaseGraph"
-    pydantic_class: Type = BaseGraph
-    django_model: Type[models.Model]
-    context_fields: list[FieldContext] = field(default_factory=list)
-
-    def __post_init__(self):
-        """Initialize context fields after instance creation."""
-        self.add_field(
-            field_name="prompt_type",
-            field_type=Type[BasePrompt],
-            is_optional=True,
-            is_list=False,
-            additional_metadata={}
-        )
-    @classmethod
-    def create(cls,
-        django_model: Type[models.Model],
-        prompt_type: Optional[Type[BasePrompt]]) -> "DjangoBaseGraphContext":
-        """
-        Create a context instance with the required field values.
-
-        Args:
-            django_model: The Django model class
-            prompt_type: Value for prompt_type field
-        Returns:
-            A context instance with all required field values set
-        """
-        context = cls(django_model=django_model)
-        context.set_value("prompt_type", prompt_type)
-        return context
-
-@dataclass
-class DjangoBaseGraphContext(ModelContext):
-    """
-    Context class for DjangoBaseGraph.
-    Contains non-serializable fields that need to be provided when converting from Django to Pydantic.
-    """
-    model_name: str = "DjangoBaseGraph"
-    pydantic_class: Type = BaseGraph
-    django_model: Type[models.Model]
-    context_fields: list[FieldContext] = field(default_factory=list)
-
-    def __post_init__(self):
-        """Initialize context fields after instance creation."""
-        self.add_field(
-            field_name="prompt_type",
-            field_type=Type[SimplePrompt],
+            field_type=type,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -460,7 +421,7 @@ class DjangoConversationGraphContext(ModelContext):
         """Initialize context fields after instance creation."""
         self.add_field(
             field_name="prompt_type",
-            field_type=Type[SimplePrompt],
+            field_type=type,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -504,7 +465,7 @@ class DjangoAgentContext(ModelContext):
         )
         self.add_field(
             field_name="metrics",
-            field_type=llmaestro.agents.models.AgentMetrics,
+            field_type=AgentMetrics,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -513,7 +474,7 @@ class DjangoAgentContext(ModelContext):
     def create(cls,
         django_model: Type[models.Model],
         capabilities: LLMCapabilities,
-        metrics: Optional[llmaestro.agents.models.AgentMetrics]) -> "DjangoAgentContext":
+        metrics: Optional[AgentMetrics]) -> "DjangoAgentContext":
         """
         Create a context instance with the required field values.
 
@@ -544,14 +505,14 @@ class DjangoChainGraphContext(ModelContext):
         """Initialize context fields after instance creation."""
         self.add_field(
             field_name="prompt_type",
-            field_type=Type[BasePrompt],
+            field_type=type,
             is_optional=True,
             is_list=False,
             additional_metadata={}
         )
         self.add_field(
             field_name="agent_pool",
-            field_type=llmaestro.agents.agent_pool.AgentPool,
+            field_type=AgentPool,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -560,7 +521,7 @@ class DjangoChainGraphContext(ModelContext):
     def create(cls,
         django_model: Type[models.Model],
         prompt_type: Optional[Type[BasePrompt]],
-        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]) -> "DjangoChainGraphContext":
+        agent_pool: Optional[AgentPool]) -> "DjangoChainGraphContext":
         """
         Create a context instance with the required field values.
 
@@ -591,14 +552,14 @@ class DjangoConversationChainContext(ModelContext):
         """Initialize context fields after instance creation."""
         self.add_field(
             field_name="prompt_type",
-            field_type=Type[BasePrompt],
+            field_type=type,
             is_optional=True,
             is_list=False,
             additional_metadata={}
         )
         self.add_field(
             field_name="agent_pool",
-            field_type=llmaestro.agents.agent_pool.AgentPool,
+            field_type=AgentPool,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -607,7 +568,7 @@ class DjangoConversationChainContext(ModelContext):
     def create(cls,
         django_model: Type[models.Model],
         prompt_type: Optional[Type[BasePrompt]],
-        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]) -> "DjangoConversationChainContext":
+        agent_pool: Optional[AgentPool]) -> "DjangoConversationChainContext":
         """
         Create a context instance with the required field values.
 
@@ -638,7 +599,7 @@ class DjangoConversationChainNodeContext(ModelContext):
         """Initialize context fields after instance creation."""
         self.add_field(
             field_name="prompt",
-            field_type=llmaestro.prompts.implementations.SimplePrompt,
+            field_type=SimplePrompt,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -646,7 +607,7 @@ class DjangoConversationChainNodeContext(ModelContext):
     @classmethod
     def create(cls,
         django_model: Type[models.Model],
-        prompt: Optional[llmaestro.prompts.implementations.SimplePrompt]) -> "DjangoConversationChainNodeContext":
+        prompt: Optional[SimplePrompt]) -> "DjangoConversationChainNodeContext":
         """
         Create a context instance with the required field values.
 
@@ -675,14 +636,14 @@ class DjangoToolCallChainContext(ModelContext):
         """Initialize context fields after instance creation."""
         self.add_field(
             field_name="prompt_type",
-            field_type=Type[BasePrompt],
+            field_type=type,
             is_optional=True,
             is_list=False,
             additional_metadata={}
         )
         self.add_field(
             field_name="agent_pool",
-            field_type=llmaestro.agents.agent_pool.AgentPool,
+            field_type=AgentPool,
             is_optional=True,
             is_list=False,
             additional_metadata={}
@@ -691,7 +652,7 @@ class DjangoToolCallChainContext(ModelContext):
     def create(cls,
         django_model: Type[models.Model],
         prompt_type: Optional[Type[BasePrompt]],
-        agent_pool: Optional[llmaestro.agents.agent_pool.AgentPool]) -> "DjangoToolCallChainContext":
+        agent_pool: Optional[AgentPool]) -> "DjangoToolCallChainContext":
         """
         Create a context instance with the required field values.
 
@@ -706,6 +667,7 @@ class DjangoToolCallChainContext(ModelContext):
         context.set_value("prompt_type", prompt_type)
         context.set_value("agent_pool", agent_pool)
         return context
+
 
 
 # Generated Django models
@@ -1765,8 +1727,6 @@ __all__ = [
     'DjangoConversationNode',
     'DjangoBaseEdge',
     'DjangoBaseGraph',
-    'DjangoBaseGraph',
-    'DjangoBaseGraph',
     'DjangoBaseNode',
     'DjangoFileAttachment',
     'DjangoImageAttachment',
@@ -1797,8 +1757,6 @@ __all__ = [
     'DjangoBaseEdgeContext',
     'DjangoChainStepContext',
     'DjangoBaseGraphContext',
-    'DjangoBaseGraph[ChainNode, ChainEdge, BasePrompt]Context',
-    'DjangoBaseGraph[ConversationNode, ConversationEdge, SimplePrompt]Context',
     'DjangoConversationGraphContext',
     'DjangoAgentContext',
     'DjangoChainGraphContext',
